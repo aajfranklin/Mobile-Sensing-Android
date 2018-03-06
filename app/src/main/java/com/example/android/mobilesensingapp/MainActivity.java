@@ -43,7 +43,14 @@ public class MainActivity extends AppCompatActivity {
         accelerometerGraph.initialiseValues(20, "Accelerometer");
         gyroscopeGraph = new Graph3D();
         gyroscopeGraph.chart = findViewById(R.id.graph2);
-        gyroscopeGraph.initialiseValues(10, "Gyroscope");
+        gyroscopeGraph.initialiseValues(6, "Gyroscope");
+
+        int red = getResources().getColor(R.color.lineDarkPink);
+        int blue = getResources().getColor(R.color.lineBlue);
+        int green = getResources().getColor(R.color.lineTeal);
+
+        accelerometerGraph.setLineColors(red, blue, green);
+        gyroscopeGraph.setLineColors(red, blue, green);
     }
 
     public void buttonOnClick(View v) {

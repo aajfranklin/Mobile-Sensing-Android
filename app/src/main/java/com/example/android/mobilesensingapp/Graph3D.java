@@ -1,6 +1,7 @@
 package com.example.android.mobilesensingapp;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
@@ -15,10 +16,6 @@ import org.sensingkit.sensingkitlib.data.SKSensorData;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.graphics.Color.BLUE;
-import static android.graphics.Color.GREEN;
-import static android.graphics.Color.RED;
-
 class Graph3D {
     LineChart chart;
     private LineDataSet xDataSet;
@@ -29,6 +26,10 @@ class Graph3D {
     void initialiseValues(int axisHeight, String desc) {
         YAxis y = chart.getAxisLeft();
         y.setAxisMaximum(axisHeight);
+        YAxis rightY = chart.getAxisRight();
+        rightY.setEnabled(false);
+        XAxis x = chart.getXAxis();
+        x.setPosition(XAxis.XAxisPosition.BOTTOM);
 
         List<Entry> entriesX = new ArrayList<>();
         List<Entry> entriesY = new ArrayList<>();
@@ -39,16 +40,10 @@ class Graph3D {
         //noinspection SuspiciousNameCombination
         xDataSet = new LineDataSet(entriesX, "x");
         xDataSet.setDrawCircles(false);
-        xDataSet.setColor(RED);
-        xDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
         yDataSet = new LineDataSet(entriesY, "y");
         yDataSet.setDrawCircles(false);
-        yDataSet.setColor(BLUE);
-        yDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
         zDataSet = new LineDataSet(entriesZ, "z");
         zDataSet.setDrawCircles(false);
-        zDataSet.setColor(GREEN);
-        zDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
 
         ArrayList<ILineDataSet> lines = new ArrayList<>();
         lines.add(xDataSet);
@@ -62,24 +57,36 @@ class Graph3D {
         chart.invalidate();
     }
 
+    void setLineColors(int red, int blue, int green) {
+        xDataSet.setColor(red);
+        yDataSet.setColor(blue);
+        zDataSet.setColor(green);
+    }
+
     void updateGraph(SKSensorData sensorData, SKSensorModuleType moduleType, long startTime) {
+
+        long chartTime;
 
         if (moduleType == SKSensorModuleType.ACCELEROMETER) {
             SKAccelerometerData accelerometerData = (SKAccelerometerData) sensorData;
-            xDataSet.addEntry(new Entry((accelerometerData.getTimestamp() - startTime), accelerometerData.getX()));
-            yDataSet.addEntry(new Entry((accelerometerData.getTimestamp() - startTime), accelerometerData.getY()));
-            zDataSet.addEntry(new Entry((accelerometerData.getTimestamp() - startTime), accelerometerData.getZ()));
+            chartTime = accelerometerData.getTimestamp() - startTime;
+            xDataSet.addEntry(new Entry(chartTime, accelerometerData.getX()));
+            yDataSet.addEntry(new Entry(chartTime, accelerometerData.getY()));
+            zDataSet.addEntry(new Entry(chartTime, accelerometerData.getZ()));
         } else {
             SKGyroscopeData gyroscopeData = (SKGyroscopeData) sensorData;
-            xDataSet.addEntry(new Entry((gyroscopeData.getTimestamp() - startTime), gyroscopeData.getX()));
-            yDataSet.addEntry(new Entry((gyroscopeData.getTimestamp() - startTime), gyroscopeData.getY()));
-            zDataSet.addEntry(new Entry((gyroscopeData.getTimestamp() - startTime), gyroscopeData.getZ()));
+            chartTime = gyroscopeData.getTimestamp() - startTime;
+            xDataSet.addEntry(new Entry(chartTime, gyroscopeData.getX()));
+            yDataSet.addEntry(new Entry(chartTime, gyroscopeData.getY()));
+            zDataSet.addEntry(new Entry(chartTime, gyroscopeData.getZ()));
         }
-        xDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        yDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        zDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
         chartData.notifyDataChanged();
         chart.notifyDataSetChanged();
-        chart.invalidate();
+        chart.setVisibleXRangeMaximum(10000);
+        if (chartTime > 10000) {
+            chart.moveViewToX(chartTime - 10000);
+        } else {
+            chart.invalidate();
+        }
     }
 }
