@@ -6,28 +6,47 @@
     android:layout_height="match_parent"
     tools:context="com.example.android.mobilesensingapp.MainActivity">
 
-    <Switch
-        android:id="@+id/switch1"
-        android:layout_width="170dp"
-        android:layout_height="26dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:checked="false"
-        android:onClick="buttonOnClick"
-        android:text="Accelerometer"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:checked="false" />
-
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/graph"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="321dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switch1" />
+        android:layout_height="match_parent">
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Switch
+                android:id="@+id/switch1"
+                android:layout_width="170dp"
+                android:layout_height="26dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:checked="false"
+                android:onClick="buttonOnClick"
+                android:text="Start Sensing"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:checked="false" />
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/graph1"
+                android:layout_width="match_parent"
+                android:layout_height="321dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switch1" />
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/graph2"
+                android:layout_width="match_parent"
+                android:layout_height="321dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/graph1" />
+        </android.support.constraint.ConstraintLayout>
+    </ScrollView>
 
 </android.support.constraint.ConstraintLayout>

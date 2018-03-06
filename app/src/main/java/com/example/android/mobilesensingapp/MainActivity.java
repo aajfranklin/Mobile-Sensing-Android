@@ -4,25 +4,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
-import java.util.ArrayList;
-
-import com.github.mikephil.charting.charts.LineChart;
-
 import org.sensingkit.sensingkitlib.SKException;
 import org.sensingkit.sensingkitlib.SKSensorModuleType;
 import org.sensingkit.sensingkitlib.SensingKitLib;
 import org.sensingkit.sensingkitlib.SensingKitLibInterface;  //Document:  needed to add this to init SensingKit
 import org.sensingkit.sensingkitlib.data.SKAccelerometerData;
+import org.sensingkit.sensingkitlib.data.SKGyroscopeData;
 import org.sensingkit.sensingkitlib.data.SKSensorData;
 import org.sensingkit.sensingkitlib.SKSensorDataListener;
 
 public class MainActivity extends AppCompatActivity {
 
-    SensingKitLibInterface mSensingKitLib;
-    SKAccelerometerData accelerometerDataPoint;
-    ArrayList<SKAccelerometerData> accelerometerDataList = new ArrayList<SKAccelerometerData>();
-    long startTime = 0;
-    Graph3D accelerometerGraph;
+    private SensingKitLibInterface mSensingKitLib;
+    private long startTime = 0;
+    private Graph3D accelerometerGraph;
+    private Graph3D gyroscopeGraph;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,41 +33,57 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             mSensingKitLib.registerSensorModule(SKSensorModuleType.ACCELEROMETER);
+            mSensingKitLib.registerSensorModule(SKSensorModuleType.GYROSCOPE);
         } catch (SKException e) {
             System.err.println("SensingKit Exception2");
         }
 
         accelerometerGraph = new Graph3D();
-        accelerometerGraph.chart = (LineChart) findViewById(R.id.graph);
-        accelerometerGraph.initialiseValues();
+        accelerometerGraph.chart = findViewById(R.id.graph1);
+        accelerometerGraph.initialiseValues(20, "Accelerometer");
+        gyroscopeGraph = new Graph3D();
+        gyroscopeGraph.chart = findViewById(R.id.graph2);
+        gyroscopeGraph.initialiseValues(10, "Gyroscope");
     }
 
     public void buttonOnClick(View v) {
         try {
             if (mSensingKitLib.isSensorModuleSensing(SKSensorModuleType.ACCELEROMETER)) {
                 mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.ACCELEROMETER);
-                accelerometerDataList.clear();
+                mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.GYROSCOPE);
 //                startTime = 0;
             } else {
                 subscribe();
                 mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.ACCELEROMETER);
+                mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.GYROSCOPE);
             }
         } catch (SKException e) {
             System.err.println("SensingKit Exception3");
         }
     }
 
-    public void subscribe() {
+    private void subscribe() {
         try {
             mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.ACCELEROMETER, new SKSensorDataListener() {
                 @Override
                 public void onDataReceived(final SKSensorModuleType moduleType, final SKSensorData sensorData) {
                     System.out.println(sensorData.getDataInCSV());  // Print data in CSV format
-                    accelerometerDataPoint = (SKAccelerometerData) sensorData;
+                    SKAccelerometerData accelerometerDataPoint = (SKAccelerometerData) sensorData;
                     if (startTime == 0) {
                         startTime = accelerometerDataPoint.getTimestamp();
                     }
-                    accelerometerGraph.updateGraph(sensorData, startTime);
+                    accelerometerGraph.updateGraph(sensorData, moduleType, startTime);
+                }
+            });
+            mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.GYROSCOPE, new SKSensorDataListener() {
+                @Override
+                public void onDataReceived(final SKSensorModuleType moduleType, final SKSensorData sensorData) {
+                    System.out.println(sensorData.getDataInCSV());  // Print data in CSV format
+                    SKGyroscopeData gyroscopeDataPoint = (SKGyroscopeData) sensorData;
+                    if (startTime == 0) {
+                        startTime = gyroscopeDataPoint.getTimestamp();
+                    }
+                    gyroscopeGraph.updateGraph(sensorData, moduleType, startTime);
                 }
             });
         } catch (SKException e) {
