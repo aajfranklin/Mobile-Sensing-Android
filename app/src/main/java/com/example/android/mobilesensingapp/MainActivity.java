@@ -1,100 +1,113 @@
 package com.example.android.mobilesensingapp;
 
+import android.Manifest;
+import android.app.ActivityManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.os.IBinder;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-
-import org.sensingkit.sensingkitlib.SKException;
-import org.sensingkit.sensingkitlib.SKSensorModuleType;
-import org.sensingkit.sensingkitlib.SensingKitLib;
-import org.sensingkit.sensingkitlib.SensingKitLibInterface;  //Document:  needed to add this to init SensingKit
-import org.sensingkit.sensingkitlib.data.SKAccelerometerData;
-import org.sensingkit.sensingkitlib.data.SKGyroscopeData;
-import org.sensingkit.sensingkitlib.data.SKSensorData;
-import org.sensingkit.sensingkitlib.SKSensorDataListener;
+//import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private SensingKitLibInterface mSensingKitLib;
-    private long startTime = 0;
-    private Graph3D accelerometerGraph;
-    private Graph3D gyroscopeGraph;
+    private boolean serviceActive = false;
+    private SensorService sService;
+    private boolean mBound = false;
+
+    //NEW
+    private static final int REQUEST_WRITE_STORAGE = 112;
+    private boolean hasPermission;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        try {
-            mSensingKitLib = SensingKitLib.getSensingKitLib(this);
-        } catch (SKException e) {
-            System.err.println("SensingKit Exception1");
+        //NEW
+        hasPermission = (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+        if (!hasPermission) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
         }
-
-        try {
-            mSensingKitLib.registerSensorModule(SKSensorModuleType.ACCELEROMETER);
-            mSensingKitLib.registerSensorModule(SKSensorModuleType.GYROSCOPE);
-        } catch (SKException e) {
-            System.err.println("SensingKit Exception2");
-        }
-
-        accelerometerGraph = new Graph3D();
-        accelerometerGraph.chart = findViewById(R.id.graph1);
-        accelerometerGraph.initialiseValues(20, "Accelerometer");
-        gyroscopeGraph = new Graph3D();
-        gyroscopeGraph.chart = findViewById(R.id.graph2);
-        gyroscopeGraph.initialiseValues(6, "Gyroscope");
-
-        int red = getResources().getColor(R.color.lineDarkPink);
-        int blue = getResources().getColor(R.color.lineBlue);
-        int green = getResources().getColor(R.color.lineTeal);
-
-        accelerometerGraph.setLineColors(red, blue, green);
-        gyroscopeGraph.setLineColors(red, blue, green);
     }
 
     public void buttonOnClick(View v) {
-        try {
-            if (mSensingKitLib.isSensorModuleSensing(SKSensorModuleType.ACCELEROMETER)) {
-                mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.ACCELEROMETER);
-                mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.GYROSCOPE);
-//                startTime = 0;
-            } else {
-                subscribe();
-                mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.ACCELEROMETER);
-                mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.GYROSCOPE);
-            }
-        } catch (SKException e) {
-            System.err.println("SensingKit Exception3");
+        if (serviceActive) {
+            sService.stopSensing();
+            serviceActive = false;
+        } else {
+            sService.startSensing();
+            serviceActive = true;
         }
     }
 
-    private void subscribe() {
-        try {
-            mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.ACCELEROMETER, new SKSensorDataListener() {
-                @Override
-                public void onDataReceived(final SKSensorModuleType moduleType, final SKSensorData sensorData) {
-                    System.out.println(sensorData.getDataInCSV());  // Print data in CSV format
-                    SKAccelerometerData accelerometerDataPoint = (SKAccelerometerData) sensorData;
-                    if (startTime == 0) {
-                        startTime = accelerometerDataPoint.getTimestamp();
-                    }
-                    accelerometerGraph.updateGraph(sensorData, moduleType, startTime);
-                }
-            });
-            mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.GYROSCOPE, new SKSensorDataListener() {
-                @Override
-                public void onDataReceived(final SKSensorModuleType moduleType, final SKSensorData sensorData) {
-                    System.out.println(sensorData.getDataInCSV());  // Print data in CSV format
-                    SKGyroscopeData gyroscopeDataPoint = (SKGyroscopeData) sensorData;
-                    if (startTime == 0) {
-                        startTime = gyroscopeDataPoint.getTimestamp();
-                    }
-                    gyroscopeGraph.updateGraph(sensorData, moduleType, startTime);
-                }
-            });
-        } catch (SKException e) {
-            System.err.println("SensingKit Exception4");
+    private final ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            SensorService.LocalBinder binder = (SensorService.LocalBinder) service;
+            sService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+
+    };
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Intent intent = new Intent(this, SensorService.class);
+
+        if (!isSensingServiceRunning()) {
+            startService(intent);
+        }
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private boolean isSensingServiceRunning() {
+
+        ActivityManager manager = (ActivityManager) getSystemService (Context.ACTIVITY_SERVICE);
+
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (SensorService.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        switch (requestCode) {
+//            case REQUEST_WRITE_STORAGE: {
+//                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    //reload my activity with permission granted or use the features what required the permission
+//                } else {
+//                    Toast.makeText(this, "The app was not allowed to write to external storage. The app will not function properly. Please consider granting permission.", Toast.LENGTH_LONG).show();
+//                }
+//            }
+//        }
+//    }
 }
