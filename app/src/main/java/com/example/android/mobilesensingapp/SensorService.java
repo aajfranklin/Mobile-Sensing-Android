@@ -61,7 +61,7 @@ public class SensorService extends Service {
      * Class used for the client Binder.  Because we know this service always
      * runs in the same process as its clients, we don't need to deal with IPC.
      */
-    public class LocalBinder extends Binder {
+    class LocalBinder extends Binder {
 
         SensorService getService() {
             // Return this instance of LocalService so clients can call public methods
@@ -88,7 +88,6 @@ public class SensorService extends Service {
     }
 
     private void showNotification() {
-
         // The PendingIntent to launch our activity if the user selects this notification
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -106,6 +105,7 @@ public class SensorService extends Service {
 
         // Show the notification
         startForeground(1, notification);
+        System.out.println("Hello!");
     }
 
     private void hideNotification() {

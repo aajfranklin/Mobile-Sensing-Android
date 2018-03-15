@@ -1,10 +1,7 @@
 package com.example.android.mobilesensingapp;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Environment;
-import android.support.v4.content.ContextCompat;
 
 import org.sensingkit.sensingkitlib.SKException;
 import org.sensingkit.sensingkitlib.SKExceptionErrorCode;
@@ -18,21 +15,20 @@ import java.io.File;
  * Created by Alex on 15/03/2018.
  */
 
-public class SensorSession {
+class SensorSession {
 
     @SuppressWarnings("unused")
     private static final String TAG = "SensingSession";
 
     private SensingKitLibInterface mSensingKitLib;
     private boolean isSensing = false;
-    private File sessionFolder;
     private SensorDataWriter accelerometerWriter;
     private SensorDataWriter gyroscopeWriter;
 
-    public SensorSession(final Context context, final String folderName) throws SKException {
+    SensorSession(final Context context, final String folderName) throws SKException {
         mSensingKitLib = SensingKitLib.getSensingKitLib(context);
 
-        sessionFolder = createFolder(folderName);
+        File sessionFolder = createFolder(folderName);
 
         accelerometerWriter = new SensorDataWriter(SKSensorModuleType.ACCELEROMETER, sessionFolder, "Accelerometer");
         gyroscopeWriter = new SensorDataWriter(SKSensorModuleType.GYROSCOPE, sessionFolder, "Gyroscope");
@@ -44,19 +40,19 @@ public class SensorSession {
         mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.GYROSCOPE, gyroscopeWriter);
     }
 
-    public void startSession() throws SKException {
+    void startSession() throws SKException {
         this.isSensing = true;
         mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.ACCELEROMETER);
         mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.GYROSCOPE);
     }
 
-    public void stopSession() throws SKException {
+    void stopSession() throws SKException {
         this.isSensing = false;
         mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.ACCELEROMETER);
         mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.GYROSCOPE);
     }
 
-    public void close() throws SKException {
+    void close() throws SKException {
         mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.ACCELEROMETER, accelerometerWriter);
         mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.GYROSCOPE, gyroscopeWriter);
 
@@ -67,7 +63,7 @@ public class SensorSession {
         gyroscopeWriter.close();
     }
 
-    public boolean isSensing(){
+    boolean isSensing(){
         return this.isSensing;
     }
 
