@@ -19,7 +19,13 @@ class SensorSession {
     private SensingKitLibInterface mSensingKitLib;
     private boolean isSensing = false;
     private SensorDataWriter accelerometerWriter;
+    private SensorDataWriter gravityWriter;
     private SensorDataWriter gyroscopeWriter;
+    private SensorDataWriter linAccelWriter;
+    private SensorDataWriter magnetWriter;
+    private SensorDataWriter rotationWriter;
+    private SensorDataWriter stepCountWriter;
+    private SensorDataWriter stepDetectWriter;
 
     SensorSession(final Context context, final String folderName) throws SKException {
         mSensingKitLib = SensingKitLib.getSensingKitLib(context);
@@ -27,36 +33,85 @@ class SensorSession {
         File sessionFolder = createFolder(folderName);
 
         accelerometerWriter = new SensorDataWriter(SKSensorModuleType.ACCELEROMETER, sessionFolder, "Accelerometer");
+        gravityWriter = new SensorDataWriter(SKSensorModuleType.GRAVITY, sessionFolder, "Gravity");
         gyroscopeWriter = new SensorDataWriter(SKSensorModuleType.GYROSCOPE, sessionFolder, "Gyroscope");
+        linAccelWriter = new SensorDataWriter(SKSensorModuleType.LINEAR_ACCELERATION, sessionFolder, "Linear Acceleration");
+        magnetWriter = new SensorDataWriter(SKSensorModuleType.MAGNETOMETER, sessionFolder, "Magnetometer");
+        rotationWriter = new SensorDataWriter(SKSensorModuleType.ROTATION, sessionFolder, "Rotation");
+        stepCountWriter = new SensorDataWriter(SKSensorModuleType.STEP_COUNTER, sessionFolder, "Step Counter");
+        stepDetectWriter = new SensorDataWriter(SKSensorModuleType.STEP_DETECTOR, sessionFolder, "Step Detector");
 
         mSensingKitLib.registerSensorModule(SKSensorModuleType.ACCELEROMETER);
+        mSensingKitLib.registerSensorModule(SKSensorModuleType.GRAVITY);
         mSensingKitLib.registerSensorModule(SKSensorModuleType.GYROSCOPE);
+        mSensingKitLib.registerSensorModule(SKSensorModuleType.LINEAR_ACCELERATION);
+        mSensingKitLib.registerSensorModule(SKSensorModuleType.MAGNETOMETER);
+        mSensingKitLib.registerSensorModule(SKSensorModuleType.ROTATION);
+        mSensingKitLib.registerSensorModule(SKSensorModuleType.STEP_COUNTER);
+        mSensingKitLib.registerSensorModule(SKSensorModuleType.STEP_DETECTOR);
 
         mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.ACCELEROMETER, accelerometerWriter);
+        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.GRAVITY, gravityWriter);
         mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.GYROSCOPE, gyroscopeWriter);
+        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.LINEAR_ACCELERATION, linAccelWriter);
+        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.MAGNETOMETER, magnetWriter);
+        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.ROTATION, rotationWriter);
+        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.STEP_COUNTER, stepCountWriter);
+        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.STEP_DETECTOR, stepDetectWriter);
     }
 
     void startSession() throws SKException {
         this.isSensing = true;
         mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.ACCELEROMETER);
+        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.GRAVITY);
         mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.GYROSCOPE);
+        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.LINEAR_ACCELERATION);
+        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.MAGNETOMETER);
+        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.ROTATION);
+        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.STEP_COUNTER);
+        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.STEP_DETECTOR);
     }
 
     void stopSession() throws SKException {
         this.isSensing = false;
         mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.ACCELEROMETER);
+        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.GRAVITY);
         mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.GYROSCOPE);
+        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.LINEAR_ACCELERATION);
+        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.MAGNETOMETER);
+        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.ROTATION);
+        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.STEP_COUNTER);
+        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.STEP_DETECTOR);
     }
 
     void close() throws SKException {
         mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.ACCELEROMETER, accelerometerWriter);
+        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.GRAVITY, gravityWriter);
         mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.GYROSCOPE, gyroscopeWriter);
+        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.LINEAR_ACCELERATION, linAccelWriter);
+        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.MAGNETOMETER, magnetWriter);
+        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.ROTATION, rotationWriter);
+        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.STEP_COUNTER, stepCountWriter);
+        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.STEP_DETECTOR, stepDetectWriter);
+
 
         mSensingKitLib.deregisterSensorModule(SKSensorModuleType.ACCELEROMETER);
+        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.GRAVITY);
         mSensingKitLib.deregisterSensorModule(SKSensorModuleType.GYROSCOPE);
+        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.LINEAR_ACCELERATION);
+        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.MAGNETOMETER);
+        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.ROTATION);
+        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.STEP_COUNTER);
+        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.STEP_DETECTOR);
 
         accelerometerWriter.close();
+        gravityWriter.close();
         gyroscopeWriter.close();
+        linAccelWriter.close();
+        magnetWriter.close();
+        rotationWriter.close();
+        stepCountWriter.close();
+        stepDetectWriter.close();
     }
 
     boolean isSensing(){
