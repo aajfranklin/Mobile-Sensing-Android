@@ -22,19 +22,19 @@ public class SensorDataWriter implements SKSensorDataListener {
 
     @SuppressWarnings("unused")
     private static final String TAG = "SensorDataWriter";
-
+    @SuppressWarnings("FieldCanBeLocal")
     private final SKSensorModuleType moduleType;
+    @SuppressWarnings("FieldCanBeLocal")
+    private File file;
+    private BufferedOutputStream fileBuffer;
 
-    private File mFile;
-    private BufferedOutputStream mFileBuffer;
-
-    public SensorDataWriter (SKSensorModuleType moduleType, File sessionFolder, String filename) throws SKException {
+    SensorDataWriter (SKSensorModuleType moduleType, File sessionFolder, String filename) throws SKException {
 
         this.moduleType = moduleType;
-        this.mFile = createFile(sessionFolder, filename);
+        this.file = createFile(sessionFolder, filename);
 
         try {
-            this.mFileBuffer = new BufferedOutputStream(new FileOutputStream(mFile));
+            this.fileBuffer = new BufferedOutputStream(new FileOutputStream(file));
         }
         catch (FileNotFoundException ex) {
             throw new SKException(TAG, "File could not be found.", SKExceptionErrorCode.UNKNOWN_ERROR);
@@ -45,17 +45,17 @@ public class SensorDataWriter implements SKSensorDataListener {
     public void flush() throws SKException {
 
         try {
-            mFileBuffer.flush();
+            fileBuffer.flush();
         }
         catch (IOException ex) {
             throw new SKException(TAG, ex.getMessage(), SKExceptionErrorCode.UNKNOWN_ERROR);
         }
     }
 
-    public void close() throws SKException {
+    void close() throws SKException {
 
         try {
-            mFileBuffer.close();
+            fileBuffer.close();
         }
         catch (IOException ex) {
             throw new SKException(TAG, ex.getMessage(), SKExceptionErrorCode.UNKNOWN_ERROR);
@@ -75,23 +75,18 @@ public class SensorDataWriter implements SKSensorDataListener {
             throw new SKException(TAG, ex.getMessage(), SKExceptionErrorCode.UNKNOWN_ERROR);
         }
 
-        // Make file visible
-        //MediaScannerConnection.scanFile(getBaseContext(), new String[]{file.getAbsolutePath()}, null, null);
-
         return file;
     }
 
     @Override
     public void onDataReceived(SKSensorModuleType moduleType, SKSensorData moduleData) {
 
-        if (mFileBuffer != null) {
+        if (fileBuffer != null) {
 
-            // Build the data line
             String dataLine = moduleData.getDataInCSV() + "\n";
 
-            // Write in the FileBuffer
             try {
-                mFileBuffer.write(dataLine.getBytes());
+                fileBuffer.write(dataLine.getBytes());
             } catch (IOException ex) {
                 Log.e(TAG, ex.getMessage());
             }

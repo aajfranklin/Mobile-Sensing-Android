@@ -11,10 +11,6 @@ import org.sensingkit.sensingkitlib.SensingKitLibInterface;
 
 import java.io.File;
 
-/**
- * Created by Alex on 15/03/2018.
- */
-
 class SensorSession {
 
     @SuppressWarnings("unused")
@@ -76,7 +72,6 @@ class SensorSession {
             }
         }
 
-        // Create session folder
         File folder = new File(appFolder, folderName);
 
         if (!folder.exists()) {

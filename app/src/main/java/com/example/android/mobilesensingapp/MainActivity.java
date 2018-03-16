@@ -19,19 +19,16 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean serviceActive = false;
     private SensorService sService;
-    private boolean mBound = false;
-
-    //NEW
+    private boolean isBound = false;
     private static final int REQUEST_WRITE_STORAGE = 112;
-    private boolean hasPermission;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //NEW
-        hasPermission = (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+        boolean hasPermission = (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+
         if (!hasPermission) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
         }
@@ -53,12 +50,12 @@ public class MainActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName className, IBinder service) {
             SensorService.LocalBinder binder = (SensorService.LocalBinder) service;
             sService = binder.getService();
-            mBound = true;
+            isBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
+            isBound = false;
         }
 
     };
@@ -67,9 +64,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
 
-        if (mBound) {
+        if (isBound) {
             unbindService(mConnection);
-            mBound = false;
+            isBound = false;
         }
     }
 
@@ -97,17 +94,15 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        switch (requestCode) {
-//            case REQUEST_WRITE_STORAGE: {
-//                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    //reload my activity with permission granted or use the features what required the permission
-//                } else {
-//                    Toast.makeText(this, "The app was not allowed to write to external storage. The app will not function properly. Please consider granting permission.", Toast.LENGTH_LONG).show();
-//                }
-//            }
-//        }
-//    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_WRITE_STORAGE: {
+                if (!(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    Toast.makeText(this, "The app was not allowed to write to external storage. The app will not function properly. Please consider granting permission.", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
 }

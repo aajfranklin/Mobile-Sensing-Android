@@ -1,9 +1,5 @@
 package com.example.android.mobilesensingapp;
 
-/**
- * Created by Alex on 15/03/2018.
- */
-
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -21,8 +17,8 @@ import java.util.Locale;
 
 public class SensorService extends Service {
 
-    private final IBinder mBinder = new LocalBinder();
-    private PowerManager.WakeLock mWakeLock;
+    private final IBinder binder = new LocalBinder();
+    private PowerManager.WakeLock wakeLock;
     private SensorSession sSession;
 
     @Override
@@ -32,7 +28,7 @@ public class SensorService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return mBinder;
+        return binder;
     }
 
     @Override
@@ -52,19 +48,12 @@ public class SensorService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-        // To ensure the service continues running until explicitly stopped
         return START_STICKY;
     }
 
-    /**
-     * Class used for the client Binder.  Because we know this service always
-     * runs in the same process as its clients, we don't need to deal with IPC.
-     */
     class LocalBinder extends Binder {
 
         SensorService getService() {
-            // Return this instance of LocalService so clients can call public methods
             return SensorService.this;
         }
     }
@@ -88,12 +77,10 @@ public class SensorService extends Service {
     }
 
     private void showNotification() {
-        // The PendingIntent to launch our activity if the user selects this notification
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
-        // Build the notification
         Notification notification = new Notification.Builder(this)
                 .setContentTitle("Mobile Sensing")
                 .setContentText("Collecting sensor data...")
@@ -103,9 +90,7 @@ public class SensorService extends Service {
                 .setOngoing(true)
                 .build();
 
-        // Show the notification
         startForeground(1, notification);
-        System.out.println("Hello!");
     }
 
     private void hideNotification() {
@@ -113,20 +98,18 @@ public class SensorService extends Service {
     }
 
     private void acquireWakeLock() {
-        if ((mWakeLock == null) || (!mWakeLock.isHeld())) {
+        if ((wakeLock == null) || (!wakeLock.isHeld())) {
             PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
-            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WakeLock");
-            mWakeLock.acquire();
+            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WakeLock");
+            wakeLock.acquire();
         }
     }
 
     private void releaseWakeLock() {
-        if (mWakeLock != null && mWakeLock.isHeld()) {
-            mWakeLock.release();
+        if (wakeLock != null && wakeLock.isHeld()) {
+            wakeLock.release();
         }
     }
-
-    // Public Interface
 
     public void startSensing() {
 
