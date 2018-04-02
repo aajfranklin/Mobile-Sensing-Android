@@ -24,8 +24,8 @@ class SensorSession {
     private SensorDataWriter linAccelWriter;
     private SensorDataWriter magnetWriter;
     private SensorDataWriter rotationWriter;
-    private SensorDataWriter stepCountWriter;
-    private SensorDataWriter stepDetectWriter;
+//    private SensorDataWriter stepCountWriter;
+//    private SensorDataWriter stepDetectWriter;
 
     SensorSession(final Context context, final String folderName) throws SKException {
         mSensingKitLib = SensingKitLib.getSensingKitLib(context);
@@ -38,8 +38,8 @@ class SensorSession {
         linAccelWriter = new SensorDataWriter(SKSensorModuleType.LINEAR_ACCELERATION, sessionFolder, "Linear Acceleration");
         magnetWriter = new SensorDataWriter(SKSensorModuleType.MAGNETOMETER, sessionFolder, "Magnetometer");
         rotationWriter = new SensorDataWriter(SKSensorModuleType.ROTATION, sessionFolder, "Rotation");
-        stepCountWriter = new SensorDataWriter(SKSensorModuleType.STEP_COUNTER, sessionFolder, "Step Counter");
-        stepDetectWriter = new SensorDataWriter(SKSensorModuleType.STEP_DETECTOR, sessionFolder, "Step Detector");
+//        stepCountWriter = new SensorDataWriter(SKSensorModuleType.STEP_COUNTER, sessionFolder, "Step Counter");
+//        stepDetectWriter = new SensorDataWriter(SKSensorModuleType.STEP_DETECTOR, sessionFolder, "Step Detector");
 
         mSensingKitLib.registerSensorModule(SKSensorModuleType.ACCELEROMETER);
         mSensingKitLib.registerSensorModule(SKSensorModuleType.GRAVITY);
@@ -47,8 +47,8 @@ class SensorSession {
         mSensingKitLib.registerSensorModule(SKSensorModuleType.LINEAR_ACCELERATION);
         mSensingKitLib.registerSensorModule(SKSensorModuleType.MAGNETOMETER);
         mSensingKitLib.registerSensorModule(SKSensorModuleType.ROTATION);
-        mSensingKitLib.registerSensorModule(SKSensorModuleType.STEP_COUNTER);
-        mSensingKitLib.registerSensorModule(SKSensorModuleType.STEP_DETECTOR);
+//        mSensingKitLib.registerSensorModule(SKSensorModuleType.STEP_COUNTER);
+//        mSensingKitLib.registerSensorModule(SKSensorModuleType.STEP_DETECTOR);
 
         mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.ACCELEROMETER, accelerometerWriter);
         mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.GRAVITY, gravityWriter);
@@ -56,8 +56,8 @@ class SensorSession {
         mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.LINEAR_ACCELERATION, linAccelWriter);
         mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.MAGNETOMETER, magnetWriter);
         mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.ROTATION, rotationWriter);
-        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.STEP_COUNTER, stepCountWriter);
-        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.STEP_DETECTOR, stepDetectWriter);
+//        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.STEP_COUNTER, stepCountWriter);
+//        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.STEP_DETECTOR, stepDetectWriter);
     }
 
     void startSession() throws SKException {
@@ -68,8 +68,8 @@ class SensorSession {
         mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.LINEAR_ACCELERATION);
         mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.MAGNETOMETER);
         mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.ROTATION);
-        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.STEP_COUNTER);
-        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.STEP_DETECTOR);
+//        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.STEP_COUNTER);
+//        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.STEP_DETECTOR);
     }
 
     void stopSession() throws SKException {
@@ -80,8 +80,8 @@ class SensorSession {
         mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.LINEAR_ACCELERATION);
         mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.MAGNETOMETER);
         mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.ROTATION);
-        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.STEP_COUNTER);
-        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.STEP_DETECTOR);
+//        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.STEP_COUNTER);
+//        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.STEP_DETECTOR);
     }
 
     void close() throws SKException {
@@ -91,8 +91,8 @@ class SensorSession {
         mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.LINEAR_ACCELERATION, linAccelWriter);
         mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.MAGNETOMETER, magnetWriter);
         mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.ROTATION, rotationWriter);
-        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.STEP_COUNTER, stepCountWriter);
-        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.STEP_DETECTOR, stepDetectWriter);
+//        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.STEP_COUNTER, stepCountWriter);
+//        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.STEP_DETECTOR, stepDetectWriter);
 
 
         mSensingKitLib.deregisterSensorModule(SKSensorModuleType.ACCELEROMETER);
@@ -101,8 +101,8 @@ class SensorSession {
         mSensingKitLib.deregisterSensorModule(SKSensorModuleType.LINEAR_ACCELERATION);
         mSensingKitLib.deregisterSensorModule(SKSensorModuleType.MAGNETOMETER);
         mSensingKitLib.deregisterSensorModule(SKSensorModuleType.ROTATION);
-        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.STEP_COUNTER);
-        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.STEP_DETECTOR);
+//        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.STEP_COUNTER);
+//        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.STEP_DETECTOR);
 
         accelerometerWriter.close();
         gravityWriter.close();
@@ -110,8 +110,8 @@ class SensorSession {
         linAccelWriter.close();
         magnetWriter.close();
         rotationWriter.close();
-        stepCountWriter.close();
-        stepDetectWriter.close();
+//        stepCountWriter.close();
+//        stepDetectWriter.close();
     }
 
     boolean isSensing(){
@@ -127,6 +127,7 @@ class SensorSession {
             }
         }
 
+        System.out.println(appFolder);
         File folder = new File(appFolder, folderName);
 
         if (!folder.exists()) {
