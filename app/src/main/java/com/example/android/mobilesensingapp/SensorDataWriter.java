@@ -1,9 +1,5 @@
 package com.example.android.mobilesensingapp;
 
-/**
- * Created by Alex on 15/03/2018.
- */
-
 import android.util.Log;
 
 import org.sensingkit.sensingkitlib.SKException;

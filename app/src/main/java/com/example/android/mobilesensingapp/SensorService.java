@@ -1,13 +1,17 @@
 package com.example.android.mobilesensingapp;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.support.v4.app.NotificationCompat;
 
 import org.sensingkit.sensingkitlib.SKException;
 
@@ -20,6 +24,7 @@ public class SensorService extends Service {
     private final IBinder binder = new LocalBinder();
     private PowerManager.WakeLock wakeLock;
     private SensorSession sSession;
+    private NotificationManager notificationManager;
 
     @Override
     public void onCreate() {
@@ -33,16 +38,7 @@ public class SensorService extends Service {
 
     @Override
     public void onDestroy() {
-
-        try {
-            sSession.stopSession();
-            sSession.close();
-            hideNotification();
-        }
-        catch (SKException ex) {
-            ex.printStackTrace();
-        }
-
+        stopSensing();
         super.onDestroy();
     }
 
@@ -77,24 +73,55 @@ public class SensorService extends Service {
     }
 
     private void showNotification() {
+
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
-        Notification notification = new Notification.Builder(this)
-                .setContentTitle("Mobile Sensing")
-                .setContentText("Collecting sensor data...")
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentIntent(contentIntent)
-                .setWhen(System.currentTimeMillis())
-                .setOngoing(true)
-                .build();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create the NotificationChannel
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            String CHANNEL_ID = "mobile_sensing_01";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+            mChannel.setDescription(description);
 
-        startForeground(1, notification);
+            // Register the channel with the system
+            notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            notificationManager.createNotificationChannel(mChannel);
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setContentTitle("Mobile Sensing")
+                    .setContentText("Collecting sensor data...")
+                    // Placeholder Icon, update or give credit: https://visualpharm.com/free-icons/sensor-595b40b85ba036ed117dba5a
+                    .setSmallIcon(R.drawable.download)
+                    .setWhen(System.currentTimeMillis())
+                    .setOngoing(true);
+
+            notificationManager.notify(1, builder.build());
+        } else {
+
+            Notification notification = new Notification.Builder(this)
+                    .setContentTitle("Mobile Sensing")
+                    .setContentText("Collecting sensor data...")
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentIntent(contentIntent)
+                    .setWhen(System.currentTimeMillis())
+                    .setOngoing(true)
+                    .build();
+
+            startForeground(1, notification);
+        }
     }
 
     private void hideNotification() {
-        stopForeground(true);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.cancel(1);
+        } else {
+            stopForeground(true);
+        }
     }
 
     private void acquireWakeLock() {
@@ -137,7 +164,6 @@ public class SensorService extends Service {
             if (sSession.isSensing()) {
                 sSession.stopSession();
             }
-
             sSession.close();
         }
         catch (SKException ex) {
