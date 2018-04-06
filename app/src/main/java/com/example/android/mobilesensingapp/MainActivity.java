@@ -34,6 +34,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        if (serviceActive) {
+            sService.onDestroy();
+        }
+        super.onDestroy();
+    }
+
     public void buttonOnClick(View v) {
         if (serviceActive) {
             sService.stopSensing();
