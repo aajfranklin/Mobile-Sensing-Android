@@ -25,7 +25,7 @@ public class SensorService extends Service {
     private PowerManager.WakeLock wakeLock;
     private SensorSession sSession;
     private NotificationManager notificationManager;
-    private boolean active;
+    private boolean sensing;
 
     @Override
     public void onCreate() {
@@ -156,7 +156,7 @@ public class SensorService extends Service {
         }
 
         showNotification();
-        active = true;
+        sensing = true;
     }
 
     public void stopSensing() {
@@ -176,10 +176,10 @@ public class SensorService extends Service {
         hideNotification();
 
         sSession = null;
-        active = false;
+        sensing = false;
     }
 
-    public boolean isActive() {
-        return active;
+    public boolean isSensing() {
+        return sensing;
     }
 }

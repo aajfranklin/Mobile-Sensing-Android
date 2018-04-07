@@ -35,14 +35,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        if (sService.isActive()) {
+        if (sService.isSensing()) {
             sService.onDestroy();
         }
         super.onDestroy();
     }
 
     public void buttonOnClick(View v) {
-        if (sService.isActive()) {
+        if (sService.isSensing()) {
             sService.stopSensing();
         } else {
             sService.startSensing();
