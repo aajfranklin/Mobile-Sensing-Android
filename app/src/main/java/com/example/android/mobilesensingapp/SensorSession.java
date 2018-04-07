@@ -89,6 +89,16 @@ class SensorSession {
         mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.ROTATION);
 //        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.STEP_COUNTER);
 //        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.STEP_DETECTOR);
+
+        accelerometerWriter.flush();
+        batteryWriter.flush();
+        gravityWriter.flush();
+        gyroscopeWriter.flush();
+        linAccelWriter.flush();
+        magnetWriter.flush();
+        rotationWriter.flush();
+//        stepCountWriter.flush();
+//        stepDetectWriter.flush();
     }
 
     void close() throws SKException {

@@ -38,6 +38,8 @@ public class SensorDataWriter implements SKSensorDataListener {
 
     }
 
+    // flush() and close() implemented separately as some JDK implementations swallow exceptions thrown by flush when closing
+    // best practice to stay used to using flush() before a close for this reason, even if excessive here.
     public void flush() throws SKException {
 
         try {
