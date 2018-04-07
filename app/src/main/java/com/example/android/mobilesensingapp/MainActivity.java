@@ -17,7 +17,6 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private boolean serviceActive = false;
     private SensorService sService;
     private boolean isBound = false;
     private static final int REQUEST_WRITE_STORAGE = 112;
@@ -36,19 +35,17 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        if (serviceActive) {
+        if (sService.isActive()) {
             sService.onDestroy();
         }
         super.onDestroy();
     }
 
     public void buttonOnClick(View v) {
-        if (serviceActive) {
+        if (sService.isActive()) {
             sService.stopSensing();
-            serviceActive = false;
         } else {
             sService.startSensing();
-            serviceActive = true;
         }
     }
 
