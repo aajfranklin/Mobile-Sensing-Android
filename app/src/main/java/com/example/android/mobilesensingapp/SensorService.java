@@ -80,6 +80,8 @@ public class SensorService extends Service {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            System.out.println("Post-Oreo");
+
             // Create the NotificationChannel
             CharSequence name = getString(R.string.channel_name);
             String description = getString(R.string.channel_description);
@@ -102,7 +104,7 @@ public class SensorService extends Service {
 
             notificationManager.notify(1, builder.build());
         } else {
-
+            System.out.println("Pre-Oreo");
             Notification notification = new Notification.Builder(this)
                     .setContentTitle("Mobile Sensing")
                     .setContentText("Collecting sensor data...")

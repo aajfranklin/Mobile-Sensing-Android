@@ -13,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Switch;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private SensorService sService;
     private boolean isBound = false;
     private static final int REQUEST_WRITE_STORAGE = 112;
+    private Switch sensorSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,15 +33,21 @@ public class MainActivity extends AppCompatActivity {
         if (!hasPermission) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
         }
+
+        sensorSwitch = findViewById(R.id.switch1);
+
+        if(isSensingServiceRunning()) {
+            sensorSwitch.setChecked(true);
+        }
     }
 
-    @Override
-    protected void onDestroy() {
-        if (sService.isSensing()) {
-            sService.onDestroy();
-        }
-        super.onDestroy();
-    }
+//    @Override
+//    protected void onDestroy() {
+//        if (sService.isSensing()) {
+//            sService.onDestroy();
+//        }
+//        super.onDestroy();
+//    }
 
     public void buttonOnClick(View v) {
         if (sService.isSensing()) {
