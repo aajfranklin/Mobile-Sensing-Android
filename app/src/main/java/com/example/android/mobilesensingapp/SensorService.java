@@ -102,7 +102,8 @@ public class SensorService extends Service {
                     .setWhen(System.currentTimeMillis())
                     .setOngoing(true);
 
-            notificationManager.notify(1, builder.build());
+//            notificationManager.notify(1, builder.build());
+            startForeground(1, builder.build());
         } else {
             System.out.println("Pre-Oreo");
             Notification notification = new Notification.Builder(this)
@@ -121,7 +122,8 @@ public class SensorService extends Service {
     private void hideNotification() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.cancel(1);
+//            notificationManager.cancel(1);
+            stopForeground(true);
         } else {
             stopForeground(true);
         }

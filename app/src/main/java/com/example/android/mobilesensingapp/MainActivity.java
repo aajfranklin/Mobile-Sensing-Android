@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -90,7 +91,11 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, SensorService.class);
 
         if (!isSensingServiceRunning()) {
-            startService(intent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent);
+            } else {
+                startService(intent);
+            }
         }
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
