@@ -2,13 +2,9 @@ package com.example.android.mobilesensingapp;
 
 import android.Manifest;
 import android.app.ActivityManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.os.Build;
-import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -19,10 +15,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private SensorService sService;
-    private boolean isBound = false;
     private static final int REQUEST_WRITE_STORAGE = 112;
-    private Switch sensorSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,69 +28,22 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
         }
 
-        sensorSwitch = findViewById(R.id.switch1);
+        Switch sensorSwitch = findViewById(R.id.switch1);
 
         if(sensingServiceIsRunning()) {
             sensorSwitch.setChecked(true);
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        if (!sService.isSensing()) {
-            stopService(new Intent(this, SensorService.class));
-        }
-        super.onDestroy();
-    }
-
     public void buttonOnClick(View v) {
-        if (sService.isSensing()) {
-            sService.stopSensing();
-        } else {
-            sService.startSensing();
-        }
-    }
-
-    private final ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            SensorService.LocalBinder binder = (SensorService.LocalBinder) service;
-            sService = binder.getService();
-            isBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            isBound = false;
-        }
-
-    };
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        if (isBound) {
-            unbindService(mConnection);
-            isBound = false;
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
 
         Intent intent = new Intent(this, SensorService.class);
 
-        if (!sensingServiceIsRunning()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intent);
-            } else {
-                startService(intent);
-            }
+        if (sensingServiceIsRunning()) {
+            stopService(intent);
+        } else {
+            startService(intent);
         }
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     private boolean sensingServiceIsRunning() {

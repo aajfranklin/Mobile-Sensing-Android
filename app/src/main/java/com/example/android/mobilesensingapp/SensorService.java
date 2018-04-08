@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -21,11 +20,9 @@ import java.util.Locale;
 
 public class SensorService extends Service {
 
-    private final IBinder binder = new LocalBinder();
     private PowerManager.WakeLock wakeLock;
     private SensorSession sSession;
     private NotificationManager notificationManager;
-    private boolean sensing;
 
     @Override
     public void onCreate() {
@@ -33,26 +30,20 @@ public class SensorService extends Service {
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
-        return binder;
-    }
-
-//    @Override
-//    public void onDestroy() {
-//        stopSensing();
-//        super.onDestroy();
-//    }
-
-    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        startSensing();
         return START_STICKY;
     }
 
-    class LocalBinder extends Binder {
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
-        SensorService getService() {
-            return SensorService.this;
-        }
+    @Override
+    public void onDestroy() {
+        stopSensing();
+        super.onDestroy();
     }
 
     private SensorSession createSensingSession() {
@@ -102,7 +93,6 @@ public class SensorService extends Service {
                     .setWhen(System.currentTimeMillis())
                     .setOngoing(true);
 
-//            notificationManager.notify(1, builder.build());
             startForeground(1, builder.build());
         } else {
             System.out.println("Pre-Oreo");
@@ -160,7 +150,6 @@ public class SensorService extends Service {
         }
 
         showNotification();
-        sensing = true;
     }
 
     public void stopSensing() {
@@ -180,10 +169,5 @@ public class SensorService extends Service {
         hideNotification();
 
         sSession = null;
-        sensing = false;
-    }
-
-    public boolean isSensing() {
-        return sensing;
     }
 }
