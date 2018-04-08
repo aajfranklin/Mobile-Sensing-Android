@@ -37,11 +37,11 @@ public class SensorService extends Service {
         return binder;
     }
 
-    @Override
-    public void onDestroy() {
-        stopSensing();
-        super.onDestroy();
-    }
+//    @Override
+//    public void onDestroy() {
+//        stopSensing();
+//        super.onDestroy();
+//    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {

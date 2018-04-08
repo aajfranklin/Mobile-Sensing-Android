@@ -37,18 +37,18 @@ public class MainActivity extends AppCompatActivity {
 
         sensorSwitch = findViewById(R.id.switch1);
 
-        if(isSensingServiceRunning()) {
+        if(sensingServiceIsRunning()) {
             sensorSwitch.setChecked(true);
         }
     }
 
-//    @Override
-//    protected void onDestroy() {
-//        if (sService.isSensing()) {
-//            sService.onDestroy();
-//        }
-//        super.onDestroy();
-//    }
+    @Override
+    protected void onDestroy() {
+        if (!sService.isSensing()) {
+            stopService(new Intent(this, SensorService.class));
+        }
+        super.onDestroy();
+    }
 
     public void buttonOnClick(View v) {
         if (sService.isSensing()) {
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, SensorService.class);
 
-        if (!isSensingServiceRunning()) {
+        if (!sensingServiceIsRunning()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(intent);
             } else {
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
-    private boolean isSensingServiceRunning() {
+    private boolean sensingServiceIsRunning() {
 
         ActivityManager manager = (ActivityManager) getSystemService (Context.ACTIVITY_SERVICE);
 
