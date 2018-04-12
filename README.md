@@ -10,7 +10,7 @@ The study has three phases: application design, data gathering, and data analysi
 
 This repository represents the output of the first phase of the study. The master branch comprises the minimum viable product for the purpose of this study, which is now complete subject to further testing.
 
-The application presents the user with a simple toggle switch to turn on or off mobile sensing. When active, the application reads data from a variety of the phone's mobile sensors and stores them, either to external storage or internally if no external option is available. This is achieved with the [SensingKit-Android](https://github.com/SensingKit/SensingKit-Android).
+The application presents the user with a simple toggle switch to turn on or off mobile sensing. When active, the application reads data from a variety of the phone's mobile sensors and stores them, either to external storage or internally if no external option is available. This is achieved with the [SensingKit-Android](https://github.com/SensingKit/SensingKit-Android) library.
 
 The following sensors are supported:
 
