@@ -45,4 +45,4 @@ Data analysis will consist of:
 
 **Extended Application**
 
-The developer branch of this repository will be used to implement additional features not required for the study for hwich the app was originally designed. This will include implementation of additional sensors with compatibility checks, real-time visualisation of sensor data, and user control over which sensors are activated.
+The developer branch of this repository will be used to implement additional features not required for the study for which the app was originally designed. This will include implementation of additional sensors with compatibility checks, real-time visualisation of sensor data, and user control over which sensors are activated.
