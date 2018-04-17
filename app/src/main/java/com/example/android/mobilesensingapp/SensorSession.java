@@ -8,13 +8,11 @@ import org.sensingkit.sensingkitlib.SKExceptionErrorCode;
 import org.sensingkit.sensingkitlib.SKSensorModuleType;
 import org.sensingkit.sensingkitlib.SensingKitLib;
 import org.sensingkit.sensingkitlib.SensingKitLibInterface;
-import org.sensingkit.sensingkitlib.data.SKBatteryData;
 
 import java.io.File;
 
 class SensorSession {
 
-    @SuppressWarnings("unused")
     private static final String TAG = "SensingSession";
 
     private SensingKitLibInterface mSensingKitLib;

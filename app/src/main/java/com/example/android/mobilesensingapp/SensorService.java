@@ -22,7 +22,6 @@ public class SensorService extends Service {
 
     private PowerManager.WakeLock wakeLock;
     private SensorSession sSession;
-    private NotificationManager notificationManager;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -78,8 +77,10 @@ public class SensorService extends Service {
             mChannel.setDescription(description);
 
             // Register the channel with the system
-            notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            notificationManager.createNotificationChannel(mChannel);
+            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(mChannel);
+            }
         }
 
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
@@ -106,8 +107,10 @@ public class SensorService extends Service {
     private void acquireWakeLock() {
         if ((wakeLock == null) || (!wakeLock.isHeld())) {
             PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
-            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WakeLock");
-            wakeLock.acquire();
+            if (pm != null) {
+                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WakeLock");
+            }
+            wakeLock.acquire(1800000);
         }
     }
 
