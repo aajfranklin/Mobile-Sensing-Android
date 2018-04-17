@@ -25,11 +25,6 @@ public class SensorService extends Service {
     private NotificationManager notificationManager;
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-    }
-
-    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         startSensing();
         return START_STICKY;
@@ -70,13 +65,14 @@ public class SensorService extends Service {
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
+        String CHANNEL_ID = getString(R.string.channel_id);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             System.out.println("Post-Oreo");
 
             // Create the NotificationChannel
             CharSequence name = getString(R.string.channel_name);
             String description = getString(R.string.channel_description);
-            String CHANNEL_ID = "mobile_sensing_01";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
             mChannel.setDescription(description);
@@ -84,35 +80,23 @@ public class SensorService extends Service {
             // Register the channel with the system
             notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(mChannel);
-
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentTitle("Mobile Sensing")
-                    .setContentText("Collecting sensor data...")
-                    // Placeholder Icon, update or give credit: https://visualpharm.com/free-icons/sensor-595b40b85ba036ed117dba5a
-                    .setSmallIcon(R.drawable.download)
-                    .setWhen(System.currentTimeMillis())
-                    .setOngoing(true);
-
-            startForeground(1, builder.build());
-        } else {
-            System.out.println("Pre-Oreo");
-            Notification notification = new Notification.Builder(this)
-                    .setContentTitle("Mobile Sensing")
-                    .setContentText("Collecting sensor data...")
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentIntent(contentIntent)
-                    .setWhen(System.currentTimeMillis())
-                    .setOngoing(true)
-                    .build();
-
-            startForeground(1, notification);
         }
+
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("Mobile Sensing")
+                .setContentText("Collecting sensor data...")
+                .setSmallIcon(R.drawable.download)
+                .setContentIntent(contentIntent)
+                .setWhen(System.currentTimeMillis())
+                .setOngoing(true)
+                .build();
+
+        startForeground(1, notification);
     }
 
     private void hideNotification() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            notificationManager.cancel(1);
             stopForeground(true);
         } else {
             stopForeground(true);
