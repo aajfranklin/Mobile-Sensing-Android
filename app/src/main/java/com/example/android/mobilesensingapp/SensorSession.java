@@ -2,6 +2,7 @@ package com.example.android.mobilesensingapp;
 
 import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
 
 import org.sensingkit.sensingkitlib.SKException;
 import org.sensingkit.sensingkitlib.SKExceptionErrorCode;
@@ -14,7 +15,6 @@ import java.io.File;
 class SensorSession {
 
     private static final String TAG = "SensingSession";
-
     private SensingKitLibInterface mSensingKitLib;
     private boolean isSensing = false;
     private SensorDataWriter accelerometerWriter;
@@ -145,7 +145,7 @@ class SensorSession {
             }
         }
 
-        System.out.println(appFolder);
+        Log.d(TAG, appFolder.getAbsolutePath());
         File folder = new File(appFolder, folderName);
 
         if (!folder.exists()) {

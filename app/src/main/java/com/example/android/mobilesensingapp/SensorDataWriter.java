@@ -16,7 +16,6 @@ import java.io.IOException;
 
 public class SensorDataWriter implements SKSensorDataListener {
 
-    @SuppressWarnings("unused")
     private static final String TAG = "SensorDataWriter";
     @SuppressWarnings("FieldCanBeLocal UnusedDeclaration")
     private final SKSensorModuleType moduleType;

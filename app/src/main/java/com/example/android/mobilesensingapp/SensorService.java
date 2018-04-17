@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import org.sensingkit.sensingkitlib.SKException;
 
@@ -20,6 +21,7 @@ import java.util.Locale;
 
 public class SensorService extends Service {
 
+    private static final String TAG = "SensorService";
     private PowerManager.WakeLock wakeLock;
     private SensorSession sSession;
 
@@ -51,7 +53,7 @@ public class SensorService extends Service {
             session = new SensorSession(this, folderName);
         }
         catch (SKException ex) {
-            System.err.println(ex.getMessage());
+            Log.e(TAG, ex.getMessage());
             session = null;
         }
 
@@ -67,7 +69,7 @@ public class SensorService extends Service {
         String CHANNEL_ID = getString(R.string.channel_id);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            System.out.println("Post-Oreo");
+            Log.d(TAG,"Post-Oreo");
 
             // Create the NotificationChannel
             CharSequence name = getString(R.string.channel_name);
@@ -123,7 +125,7 @@ public class SensorService extends Service {
     public void startSensing() {
 
         if (sSession != null) {
-            System.err.println("SensorSession already created.");
+            Log.e(TAG,"SensorSession already created.");
         }
 
         sSession = createSensingSession();
