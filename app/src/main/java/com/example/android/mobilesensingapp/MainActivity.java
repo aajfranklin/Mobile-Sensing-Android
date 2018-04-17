@@ -16,6 +16,7 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_WRITE_STORAGE = 112;
+    private Switch sensorSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
         }
 
-        Switch sensorSwitch = findViewById(R.id.switch1);
+        sensorSwitch = findViewById(R.id.switch1);
 
         if(sensingServiceIsRunning()) {
             sensorSwitch.setChecked(true);
@@ -41,8 +42,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (sensingServiceIsRunning()) {
             stopService(intent);
+            sensorSwitch.setText(getString(R.string.button_inactive));
         } else {
             startService(intent);
+            sensorSwitch.setText(getString(R.string.button_active));
         }
     }
 
@@ -64,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case REQUEST_WRITE_STORAGE: {
                 if (!(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    Toast.makeText(this, "The app was not allowed to write to external storage. The app will not function properly. Please consider granting permission.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, getString(R.string.permission_denied), Toast.LENGTH_LONG).show();
                 }
             }
         }

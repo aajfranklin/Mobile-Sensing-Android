@@ -21,7 +21,7 @@
                 android:layout_marginTop="16dp"
                 android:checked="false"
                 android:onClick="buttonOnClick"
-                android:text="Start Sensing"
+                android:text="@string/button_inactive"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:checked="false" />

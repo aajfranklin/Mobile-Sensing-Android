@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">MobileSensingApp</string>
+    <string name="button_inactive">Start Sensing</string>
+    <string name="button_active">Stop Sensing</string>
     <string name="channel_id">MSC1</string>
     <string name="channel_name">Mobile Sensing Notification Channel</string>
     <string name="channel_description">Mobile Sensing Active</string>
+    <string name="notification_title">Mobile Sensing</string>
+    <string name="notification_text">Collecting sensor data...</string>
+    <string name="permission_denied">The app was not allowed to write to external storage. The app will not function properly. Please consider granting permission.</string>
 </resources>

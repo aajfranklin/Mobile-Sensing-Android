@@ -83,8 +83,8 @@ public class SensorService extends Service {
         }
 
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Mobile Sensing")
-                .setContentText("Collecting sensor data...")
+                .setContentTitle(getString(R.string.notification_title))
+                .setContentText(getString(R.string.notification_text))
                 .setSmallIcon(R.drawable.download)
                 .setContentIntent(contentIntent)
                 .setWhen(System.currentTimeMillis())
