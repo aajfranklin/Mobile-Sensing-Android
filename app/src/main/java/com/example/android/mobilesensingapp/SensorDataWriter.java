@@ -1,3 +1,11 @@
+/*
+ *  Alex Franklin, aajfranklin@gmail.com
+ *
+ *  This class is part of a continuous sensing application for Android
+ *  For more information, visit https://github.com/aajfranklin/Mobile-Sensing-Android
+ *
+ */
+
 package com.example.android.mobilesensingapp;
 
 import android.util.Log;
@@ -14,8 +22,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+ * Class responsible for writing out incoming data from each active sensor
+ */
 public class SensorDataWriter implements SKSensorDataListener {
 
+    // Debug Tag for use logging debug output to LogCat
     private static final String TAG = "SensorDataWriter";
     @SuppressWarnings("FieldCanBeLocal UnusedDeclaration")
     private final SKSensorModuleType moduleType;
@@ -23,6 +35,13 @@ public class SensorDataWriter implements SKSensorDataListener {
     private File file;
     private BufferedOutputStream fileBuffer;
 
+    /**
+     * Constructor
+     * Establishes module type, creates file to save data to, starts buffered output stream
+     * @param moduleType The type of sensor module this sensor data writer will listen to and save data from
+     * @param sessionFolder File: The folder to save data to for the current sensor session
+     * @param filename String: The name of the file to save data to
+     */
     SensorDataWriter (SKSensorModuleType moduleType, File sessionFolder, String filename) throws SKException {
 
         this.moduleType = moduleType;
@@ -37,8 +56,12 @@ public class SensorDataWriter implements SKSensorDataListener {
 
     }
 
-    // flush() and close() implemented separately as some JDK implementations swallow exceptions thrown by flush when closing
-    // best practice to stay used to using flush() before a close for this reason, even if excessive here.
+    /**
+     * Writes out any buffered data
+     * flush() and close() implemented separately as some JDK implementations swallow exceptions thrown by flush when closing
+     * Best practice to make a habit of calling flush() before close() for this reason, even if not required here, so as not to be
+     * caught out in future
+     */
     void flush() throws SKException {
 
         try {
@@ -49,6 +72,9 @@ public class SensorDataWriter implements SKSensorDataListener {
         }
     }
 
+    /**
+     * Closes the buffered output stream
+     */
     void close() throws SKException {
 
         try {
@@ -59,6 +85,12 @@ public class SensorDataWriter implements SKSensorDataListener {
         }
     }
 
+    /**
+     * Creates file to save data to
+     * @param sessionFolder File: The folder to save data to for the current sensor session
+     * @param filename String: The name of the file to save data to
+     * @return file: the file to save data to
+     */
     private File createFile(File sessionFolder, String filename) throws SKException {
 
         File file = new File(sessionFolder, filename + ".csv");
@@ -75,6 +107,11 @@ public class SensorDataWriter implements SKSensorDataListener {
         return file;
     }
 
+    /**
+     * Writes buffered data out as a CSV
+     * @param moduleType The type of sensor module this sensor data writer will listen to and save data from
+     * @param moduleData The incoming sensor data
+     */
     @Override
     public void onDataReceived(SKSensorModuleType moduleType, SKSensorData moduleData) {
 

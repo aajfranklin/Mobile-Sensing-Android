@@ -1,3 +1,11 @@
+/*
+ *  Alex Franklin, aajfranklin@gmail.com
+ *
+ *  This class is part of a continuous sensing application for Android
+ *  For more information, visit https://github.com/aajfranklin/Mobile-Sensing-Android
+ *
+ */
+
 package com.example.android.mobilesensingapp;
 
 import android.content.Context;
@@ -12,11 +20,17 @@ import org.sensingkit.sensingkitlib.SensingKitLibInterface;
 
 import java.io.File;
 
+/**
+ * Class to register sensor modules, subscribe sensor data listeners, and start
+ * SensorDataWriters when a SensorService is started
+ */
 class SensorSession {
 
+    // Debug Tag for use logging debug output to LogCat
     private static final String TAG = "SensingSession";
     private SensingKitLibInterface mSensingKitLib;
     private boolean isSensing = false;
+    // Data writers for all sensors
     private SensorDataWriter accelerometerWriter;
     private SensorDataWriter batteryWriter;
     private SensorDataWriter gravityWriter;
@@ -24,14 +38,20 @@ class SensorSession {
     private SensorDataWriter linAccelWriter;
     private SensorDataWriter magnetWriter;
     private SensorDataWriter rotationWriter;
-//    private SensorDataWriter stepCountWriter;
-//    private SensorDataWriter stepDetectWriter;
 
+    /**
+     * Constructor
+     * Creates folder for sensor data to be saved to
+     * Starts sensor data writer, registers sensor module, and subscribes sensor data listener for each sensor
+     * @param context Sensor service context links sensor session to the service
+     * @param folderName String: name of folder where data will be saved
+     */
     SensorSession(final Context context, final String folderName) throws SKException {
         mSensingKitLib = SensingKitLib.getSensingKitLib(context);
 
         File sessionFolder = createFolder(folderName);
 
+        // start sensor data writers
         accelerometerWriter = new SensorDataWriter(SKSensorModuleType.ACCELEROMETER, sessionFolder, "Accelerometer");
         batteryWriter = new SensorDataWriter(SKSensorModuleType.BATTERY, sessionFolder, "Battery");
         gravityWriter = new SensorDataWriter(SKSensorModuleType.GRAVITY, sessionFolder, "Gravity");
@@ -39,9 +59,8 @@ class SensorSession {
         linAccelWriter = new SensorDataWriter(SKSensorModuleType.LINEAR_ACCELERATION, sessionFolder, "Linear Acceleration");
         magnetWriter = new SensorDataWriter(SKSensorModuleType.MAGNETOMETER, sessionFolder, "Magnetometer");
         rotationWriter = new SensorDataWriter(SKSensorModuleType.ROTATION, sessionFolder, "Rotation");
-//        stepCountWriter = new SensorDataWriter(SKSensorModuleType.STEP_COUNTER, sessionFolder, "Step Counter");
-//        stepDetectWriter = new SensorDataWriter(SKSensorModuleType.STEP_DETECTOR, sessionFolder, "Step Detector");
 
+        // register sensor modules
         mSensingKitLib.registerSensorModule(SKSensorModuleType.ACCELEROMETER);
         mSensingKitLib.registerSensorModule(SKSensorModuleType.BATTERY);
         mSensingKitLib.registerSensorModule(SKSensorModuleType.GRAVITY);
@@ -49,9 +68,8 @@ class SensorSession {
         mSensingKitLib.registerSensorModule(SKSensorModuleType.LINEAR_ACCELERATION);
         mSensingKitLib.registerSensorModule(SKSensorModuleType.MAGNETOMETER);
         mSensingKitLib.registerSensorModule(SKSensorModuleType.ROTATION);
-//        mSensingKitLib.registerSensorModule(SKSensorModuleType.STEP_COUNTER);
-//        mSensingKitLib.registerSensorModule(SKSensorModuleType.STEP_DETECTOR);
 
+        // subscribe sensor data writers to listen to their appropriate sensors
         mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.ACCELEROMETER, accelerometerWriter);
         mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.BATTERY, batteryWriter);
         mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.GRAVITY, gravityWriter);
@@ -59,10 +77,11 @@ class SensorSession {
         mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.LINEAR_ACCELERATION, linAccelWriter);
         mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.MAGNETOMETER, magnetWriter);
         mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.ROTATION, rotationWriter);
-//        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.STEP_COUNTER, stepCountWriter);
-//        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.STEP_DETECTOR, stepDetectWriter);
     }
 
+    /**
+     * Starts continuous sensing with all sensors
+     */
     void startSession() throws SKException {
         this.isSensing = true;
         mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.ACCELEROMETER);
@@ -72,10 +91,11 @@ class SensorSession {
         mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.LINEAR_ACCELERATION);
         mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.MAGNETOMETER);
         mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.ROTATION);
-//        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.STEP_COUNTER);
-//        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.STEP_DETECTOR);
     }
 
+    /**
+     * Stops continuous sensing with all sensors
+     */
     void stopSession() throws SKException {
         this.isSensing = false;
         mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.ACCELEROMETER);
@@ -85,8 +105,6 @@ class SensorSession {
         mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.LINEAR_ACCELERATION);
         mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.MAGNETOMETER);
         mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.ROTATION);
-//        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.STEP_COUNTER);
-//        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.STEP_DETECTOR);
 
         accelerometerWriter.flush();
         batteryWriter.flush();
@@ -95,10 +113,11 @@ class SensorSession {
         linAccelWriter.flush();
         magnetWriter.flush();
         rotationWriter.flush();
-//        stepCountWriter.flush();
-//        stepDetectWriter.flush();
     }
 
+    /**
+     * Unsubscribes sensor data writers, deregisters sensor modules, closes data writer output streams
+     */
     void close() throws SKException {
         mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.ACCELEROMETER, accelerometerWriter);
         mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.BATTERY, batteryWriter);
@@ -107,9 +126,6 @@ class SensorSession {
         mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.LINEAR_ACCELERATION, linAccelWriter);
         mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.MAGNETOMETER, magnetWriter);
         mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.ROTATION, rotationWriter);
-//        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.STEP_COUNTER, stepCountWriter);
-//        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.STEP_DETECTOR, stepDetectWriter);
-
 
         mSensingKitLib.deregisterSensorModule(SKSensorModuleType.ACCELEROMETER);
         mSensingKitLib.deregisterSensorModule(SKSensorModuleType.BATTERY);
@@ -118,8 +134,6 @@ class SensorSession {
         mSensingKitLib.deregisterSensorModule(SKSensorModuleType.LINEAR_ACCELERATION);
         mSensingKitLib.deregisterSensorModule(SKSensorModuleType.MAGNETOMETER);
         mSensingKitLib.deregisterSensorModule(SKSensorModuleType.ROTATION);
-//        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.STEP_COUNTER);
-//        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.STEP_DETECTOR);
 
         accelerometerWriter.close();
         batteryWriter.close();
@@ -128,14 +142,21 @@ class SensorSession {
         linAccelWriter.close();
         magnetWriter.close();
         rotationWriter.close();
-//        stepCountWriter.close();
-//        stepDetectWriter.close();
     }
 
+    /**
+     * Checks sensor session active status
+     * @return boolean: true if sensing, false if not
+     */
     boolean isSensing(){
         return this.isSensing;
     }
 
+    /**
+     * Creates folder for sensor data to be saved to
+     * @param folderName String: name of the folder, constructed on creation of sensor service
+     * @return folder: the folder created
+     */
     private File createFolder(final String folderName) throws SKException {
         File appFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileSensing/");
 
