@@ -46,3 +46,9 @@ Data analysis will consist of:
 **Extended Application**
 
 The developer branch of this repository will be used to implement additional features not required for the study for which the app was originally designed. This will include implementation of additional sensors with compatibility checks, real-time visualisation of sensor data, and user control over which sensors are activated.
+
+**Credits**
+
+Launcher icon combines icons made by [Those Icons](https://www.flaticon.com/authors/those-icons) and [Freepik](http://www.freepik.com) from [www.flaticon.com](https://www.flaticon.com/), licensed by [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/)
+
+Notification icon made by [Freepik](http://www.freepik.com) from [www.flaticon.com](https://www.flaticon.com/), licensed by [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/)
