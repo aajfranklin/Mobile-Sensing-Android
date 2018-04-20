@@ -22,18 +22,20 @@ import android.view.View;
 import android.widget.Switch;
 import android.widget.Toast;
 
+
 /**
  * Controls interactive elements of the application home screen
  */
 public class MainActivity extends AppCompatActivity {
 
     // Constant for use in request for permission to write to storage
-    private static final int REQUEST_WRITE_STORAGE = 112;
+    private static final int PERMISSION_REQUESTS = 1;
     // UI element
     private Switch sensorSwitch;
 
     /**
      * Sets content view for main user activity
+     * Sets available sensors
      * Makes write to storage permission request if necessary
      * Sets toggle switch position and text on app start/resume
      * @param savedInstanceState Bundle: activity's previously saved state
@@ -44,10 +46,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Check permissions and request if necessary
-        boolean hasPermission = (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+        boolean hasPermissions = (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+                && (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED);
 
-        if (!hasPermission) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
+        if (!hasPermissions) {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.RECORD_AUDIO},
+                    PERMISSION_REQUESTS);
         }
 
         // Set toggle switch position and text based on SensorService status
@@ -108,9 +115,14 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case REQUEST_WRITE_STORAGE: {
+            case PERMISSION_REQUESTS: {
                 if (!(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    Toast.makeText(this, getString(R.string.permission_denied), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, getString(R.string.storage_permission_denied), Toast.LENGTH_LONG).show();
+                } else if (!(grantResults.length > 0 && grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
+                    Toast.makeText(this, getString(R.string.audio_permission_denied), Toast.LENGTH_LONG).show();
+                } else {
+                    SharedPreferenceManager preferenceManager = new SharedPreferenceManager();
+                    preferenceManager.setAvailableSensors(this);
                 }
             }
         }

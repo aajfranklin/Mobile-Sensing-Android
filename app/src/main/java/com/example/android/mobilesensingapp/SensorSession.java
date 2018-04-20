@@ -19,6 +19,8 @@ import org.sensingkit.sensingkitlib.SensingKitLib;
 import org.sensingkit.sensingkitlib.SensingKitLibInterface;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Class to register sensor modules, subscribe sensor data listeners, and start
@@ -30,14 +32,10 @@ class SensorSession {
     private static final String TAG = "SensingSession";
     private SensingKitLibInterface mSensingKitLib;
     private boolean isSensing = false;
-    // Data writers for all sensors
-    private SensorDataWriter accelerometerWriter;
-    private SensorDataWriter batteryWriter;
-    private SensorDataWriter gravityWriter;
-    private SensorDataWriter gyroscopeWriter;
-    private SensorDataWriter linAccelWriter;
-    private SensorDataWriter magnetWriter;
-    private SensorDataWriter rotationWriter;
+    private Map<String, SKSensorModuleType> sensors;
+    private ArrayList<SensorDataWriter> dataWriters;
+    private SharedPreferenceManager preferenceManager;
+
 
     /**
      * Constructor
@@ -48,100 +46,78 @@ class SensorSession {
      */
     SensorSession(final Context context, final String folderName) throws SKException {
         mSensingKitLib = SensingKitLib.getSensingKitLib(context);
+        preferenceManager = new SharedPreferenceManager();
+        sensors = preferenceManager.sensors;
 
         File sessionFolder = createFolder(folderName);
 
+        dataWriters = new ArrayList<>();
+
         // start sensor data writers
-        accelerometerWriter = new SensorDataWriter(SKSensorModuleType.ACCELEROMETER, sessionFolder, "Accelerometer");
-        batteryWriter = new SensorDataWriter(SKSensorModuleType.BATTERY, sessionFolder, "Battery");
-        gravityWriter = new SensorDataWriter(SKSensorModuleType.GRAVITY, sessionFolder, "Gravity");
-        gyroscopeWriter = new SensorDataWriter(SKSensorModuleType.GYROSCOPE, sessionFolder, "Gyroscope");
-        linAccelWriter = new SensorDataWriter(SKSensorModuleType.LINEAR_ACCELERATION, sessionFolder, "Linear Acceleration");
-        magnetWriter = new SensorDataWriter(SKSensorModuleType.MAGNETOMETER, sessionFolder, "Magnetometer");
-        rotationWriter = new SensorDataWriter(SKSensorModuleType.ROTATION, sessionFolder, "Rotation");
-
-        // register sensor modules
-        mSensingKitLib.registerSensorModule(SKSensorModuleType.ACCELEROMETER);
-        mSensingKitLib.registerSensorModule(SKSensorModuleType.BATTERY);
-        mSensingKitLib.registerSensorModule(SKSensorModuleType.GRAVITY);
-        mSensingKitLib.registerSensorModule(SKSensorModuleType.GYROSCOPE);
-        mSensingKitLib.registerSensorModule(SKSensorModuleType.LINEAR_ACCELERATION);
-        mSensingKitLib.registerSensorModule(SKSensorModuleType.MAGNETOMETER);
-        mSensingKitLib.registerSensorModule(SKSensorModuleType.ROTATION);
-
-        // subscribe sensor data writers to listen to their appropriate sensors
-        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.ACCELEROMETER, accelerometerWriter);
-        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.BATTERY, batteryWriter);
-        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.GRAVITY, gravityWriter);
-        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.GYROSCOPE, gyroscopeWriter);
-        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.LINEAR_ACCELERATION, linAccelWriter);
-        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.MAGNETOMETER, magnetWriter);
-        mSensingKitLib.subscribeSensorDataListener(SKSensorModuleType.ROTATION, rotationWriter);
+        for (Map.Entry<String, SKSensorModuleType> entry : sensors.entrySet()) {
+            SKSensorModuleType sensorType = entry.getValue();
+            String sensorName = entry.getKey();
+            if(preferenceManager.sensorIsAvailable(context, entry.getKey())) {
+                SensorDataWriter writer = new SensorDataWriter(sensorType, sessionFolder, sensorName);
+                mSensingKitLib.registerSensorModule(sensorType);
+                mSensingKitLib.subscribeSensorDataListener(sensorType, writer);
+                dataWriters.add(writer);
+            }
+        }
     }
 
     /**
      * Starts continuous sensing with all sensors
      */
-    void startSession() throws SKException {
+    void startSession(Context context) throws SKException {
         this.isSensing = true;
-        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.ACCELEROMETER);
-        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.BATTERY);
-        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.GRAVITY);
-        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.GYROSCOPE);
-        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.LINEAR_ACCELERATION);
-        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.MAGNETOMETER);
-        mSensingKitLib.startContinuousSensingWithSensor(SKSensorModuleType.ROTATION);
+
+        for (Map.Entry<String, SKSensorModuleType> entry : sensors.entrySet()) {
+            SKSensorModuleType sensorType = entry.getValue();
+            if(preferenceManager.sensorIsAvailable(context, entry.getKey())) {
+                mSensingKitLib.startContinuousSensingWithSensor(sensorType);
+            }
+        }
     }
 
     /**
      * Stops continuous sensing with all sensors
      */
-    void stopSession() throws SKException {
+    void stopSession(Context context) throws SKException {
         this.isSensing = false;
-        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.ACCELEROMETER);
-        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.BATTERY);
-        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.GRAVITY);
-        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.GYROSCOPE);
-        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.LINEAR_ACCELERATION);
-        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.MAGNETOMETER);
-        mSensingKitLib.stopContinuousSensingWithSensor(SKSensorModuleType.ROTATION);
 
-        accelerometerWriter.flush();
-        batteryWriter.flush();
-        gravityWriter.flush();
-        gyroscopeWriter.flush();
-        linAccelWriter.flush();
-        magnetWriter.flush();
-        rotationWriter.flush();
+        for (Map.Entry<String, SKSensorModuleType> entry : sensors.entrySet()) {
+            SKSensorModuleType sensorType = entry.getValue();
+            if(preferenceManager.sensorIsAvailable(context, entry.getKey())) {
+                mSensingKitLib.stopContinuousSensingWithSensor(sensorType);
+            }
+        }
+
+        for (SensorDataWriter writer : dataWriters) {
+            writer.flush();
+        }
     }
 
     /**
      * Unsubscribes sensor data writers, deregisters sensor modules, closes data writer output streams
      */
-    void close() throws SKException {
-        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.ACCELEROMETER, accelerometerWriter);
-        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.BATTERY, batteryWriter);
-        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.GRAVITY, gravityWriter);
-        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.GYROSCOPE, gyroscopeWriter);
-        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.LINEAR_ACCELERATION, linAccelWriter);
-        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.MAGNETOMETER, magnetWriter);
-        mSensingKitLib.unsubscribeSensorDataListener(SKSensorModuleType.ROTATION, rotationWriter);
+    void close(Context context) throws SKException {
 
-        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.ACCELEROMETER);
-        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.BATTERY);
-        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.GRAVITY);
-        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.GYROSCOPE);
-        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.LINEAR_ACCELERATION);
-        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.MAGNETOMETER);
-        mSensingKitLib.deregisterSensorModule(SKSensorModuleType.ROTATION);
+        int i = 0;
 
-        accelerometerWriter.close();
-        batteryWriter.close();
-        gravityWriter.close();
-        gyroscopeWriter.close();
-        linAccelWriter.close();
-        magnetWriter.close();
-        rotationWriter.close();
+        for (Map.Entry<String, SKSensorModuleType> entry : sensors.entrySet()) {
+
+            SKSensorModuleType sensorType = entry.getValue();
+            if(preferenceManager.sensorIsAvailable(context, entry.getKey())) {
+                mSensingKitLib.unsubscribeSensorDataListener(sensorType, dataWriters.get(i));
+                mSensingKitLib.deregisterSensorModule(sensorType);
+                i++;
+            }
+        }
+
+        for (SensorDataWriter writer : dataWriters) {
+            writer.close();
+        }
     }
 
     /**

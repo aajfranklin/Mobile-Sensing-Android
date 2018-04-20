@@ -185,7 +185,7 @@ public class SensorService extends Service {
 
         try {
             acquireWakeLock();
-            sSession.startSession();
+            sSession.startSession(this);
         }
         catch (SKException ex) {
             ex.printStackTrace();
@@ -203,9 +203,9 @@ public class SensorService extends Service {
         try {
 
             if (sSession.isSensing()) {
-                sSession.stopSession();
+                sSession.stopSession(this);
             }
-            sSession.close();
+            sSession.close(this);
         }
         catch (SKException ex) {
             ex.printStackTrace();

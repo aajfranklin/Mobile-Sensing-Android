@@ -7,5 +7,6 @@
     <string name="channel_description">Mobile Sensing Active</string>
     <string name="notification_title">Mobile Sensing</string>
     <string name="notification_text">Collecting sensor data...</string>
-    <string name="permission_denied">The app was not allowed to write to external storage. The app will not function properly. Please consider granting permission.</string>
+    <string name="storage_permission_denied">The app was not allowed to write to external storage. The app will not function properly. Please consider granting permission.</string>
+    <string name="audio_permission_denied">The app was not allowed to record audio. The app will not function properly. Please consider granting permission.</string>
 </resources>
