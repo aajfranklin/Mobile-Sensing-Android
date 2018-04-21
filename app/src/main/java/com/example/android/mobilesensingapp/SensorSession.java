@@ -32,10 +32,8 @@ class SensorSession {
     private static final String TAG = "SensingSession";
     private SensingKitLibInterface mSensingKitLib;
     private boolean isSensing = false;
-    private Map<String, SKSensorModuleType> sensors;
+    private ArrayList<SKSensorModuleType> sensorTypes = new ArrayList<>();
     private ArrayList<SensorDataWriter> dataWriters;
-    private SharedPreferenceManager preferenceManager;
-
 
     /**
      * Constructor
@@ -45,78 +43,59 @@ class SensorSession {
      * @param folderName String: name of folder where data will be saved
      */
     SensorSession(final Context context, final String folderName) throws SKException {
-        mSensingKitLib = SensingKitLib.getSensingKitLib(context);
-        preferenceManager = new SharedPreferenceManager();
-        sensors = preferenceManager.sensors;
-
         File sessionFolder = createFolder(folderName);
+        mSensingKitLib = SensingKitLib.getSensingKitLib(context);
+
+        SharedPreferenceManager preferenceManager = new SharedPreferenceManager();
+        Map<String, ?> sensorMap = preferenceManager.getAvailableSensors(context);
+        ArrayList<String> sensorNames = new ArrayList<>();
+
+        for (Map.Entry<String, ?> entry : sensorMap.entrySet()) {
+            sensorTypes.add(SKSensorModuleType.values()[(Integer) entry.getValue()]);
+            sensorNames.add(entry.getKey());
+        }
 
         dataWriters = new ArrayList<>();
 
-        // start sensor data writers
-        for (Map.Entry<String, SKSensorModuleType> entry : sensors.entrySet()) {
-            SKSensorModuleType sensorType = entry.getValue();
-            String sensorName = entry.getKey();
-            if(preferenceManager.sensorIsAvailable(context, entry.getKey())) {
-                SensorDataWriter writer = new SensorDataWriter(sensorType, sessionFolder, sensorName);
-                mSensingKitLib.registerSensorModule(sensorType);
-                mSensingKitLib.subscribeSensorDataListener(sensorType, writer);
-                dataWriters.add(writer);
-            }
+        for (int i = 0; i < sensorTypes.size(); i++) {
+            SensorDataWriter writer = new SensorDataWriter(sensorTypes.get(i), sessionFolder, sensorNames.get(i));
+            mSensingKitLib.registerSensorModule(sensorTypes.get(i));
+            mSensingKitLib.subscribeSensorDataListener(sensorTypes.get(i), writer);
+            dataWriters.add(writer);
         }
     }
 
     /**
      * Starts continuous sensing with all sensors
      */
-    void startSession(Context context) throws SKException {
+    void startSession() throws SKException {
         this.isSensing = true;
 
-        for (Map.Entry<String, SKSensorModuleType> entry : sensors.entrySet()) {
-            SKSensorModuleType sensorType = entry.getValue();
-            if(preferenceManager.sensorIsAvailable(context, entry.getKey())) {
-                mSensingKitLib.startContinuousSensingWithSensor(sensorType);
-            }
+        for (int i = 0; i < sensorTypes.size(); i++) {
+            mSensingKitLib.startContinuousSensingWithSensor(sensorTypes.get(i));
         }
     }
 
     /**
      * Stops continuous sensing with all sensors
      */
-    void stopSession(Context context) throws SKException {
+    void stopSession() throws SKException {
         this.isSensing = false;
 
-        for (Map.Entry<String, SKSensorModuleType> entry : sensors.entrySet()) {
-            SKSensorModuleType sensorType = entry.getValue();
-            if(preferenceManager.sensorIsAvailable(context, entry.getKey())) {
-                mSensingKitLib.stopContinuousSensingWithSensor(sensorType);
-            }
-        }
-
-        for (SensorDataWriter writer : dataWriters) {
-            writer.flush();
+        for (int i = 0; i < sensorTypes.size(); i++) {
+            mSensingKitLib.stopContinuousSensingWithSensor(sensorTypes.get(i));
+            dataWriters.get(i).flush();
         }
     }
 
     /**
      * Unsubscribes sensor data writers, deregisters sensor modules, closes data writer output streams
      */
-    void close(Context context) throws SKException {
-
-        int i = 0;
-
-        for (Map.Entry<String, SKSensorModuleType> entry : sensors.entrySet()) {
-
-            SKSensorModuleType sensorType = entry.getValue();
-            if(preferenceManager.sensorIsAvailable(context, entry.getKey())) {
-                mSensingKitLib.unsubscribeSensorDataListener(sensorType, dataWriters.get(i));
-                mSensingKitLib.deregisterSensorModule(sensorType);
-                i++;
-            }
-        }
-
-        for (SensorDataWriter writer : dataWriters) {
-            writer.close();
+    void close() throws SKException {
+        for (int i = 0; i < sensorTypes.size(); i++) {
+            mSensingKitLib.unsubscribeSensorDataListener(sensorTypes.get(i), dataWriters.get(i));
+            mSensingKitLib.deregisterSensorModule(sensorTypes.get(i));
+            dataWriters.get(i).close();
         }
     }
 

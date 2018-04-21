@@ -14,63 +14,82 @@ import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
-public class SharedPreferenceManager {
-    Map<String, SKSensorModuleType> sensors;
+class SharedPreferenceManager {
+    private Map<String, Integer> defaultSensors;
+    private Map<String, Integer> permissionSensors;
     private final String AVAILABLE_SENSORS = "AVAILABLE_SENSORS";
+    private final String SENSORS_SET = "SENSORS_SET";
 
     SharedPreferenceManager() {
-        sensors = new LinkedHashMap<>();
-        sensors.put("Accelerometer", SKSensorModuleType.ACCELEROMETER);
-        sensors.put("Ambient Temperature", SKSensorModuleType.AMBIENT_TEMPERATURE);
-        sensors.put("Audio Level", SKSensorModuleType.AUDIO_LEVEL);
-        sensors.put("Battery", SKSensorModuleType.BATTERY);
-        sensors.put("Gravity", SKSensorModuleType.GRAVITY);
-        sensors.put("Gyroscope", SKSensorModuleType.GYROSCOPE);
-        sensors.put("Light", SKSensorModuleType.LIGHT);
-        sensors.put("Linear Acceleration", SKSensorModuleType.LINEAR_ACCELERATION);
-        sensors.put("Magnetometer", SKSensorModuleType.MAGNETOMETER);
-        sensors.put("Rotation", SKSensorModuleType.ROTATION);
-        sensors.put("Step Counter", SKSensorModuleType.STEP_COUNTER);
-        sensors.put("Step Detector", SKSensorModuleType.STEP_DETECTOR);
+        defaultSensors = new LinkedHashMap<>();
+        defaultSensors.put("Accelerometer", 0);
+        defaultSensors.put("Ambient Temperature", 6);
+        defaultSensors.put("Battery", 12);
+        defaultSensors.put("Gravity", 1);
+        defaultSensors.put("Gyroscope", 3);
+        defaultSensors.put("Light", 9);
+        defaultSensors.put("Linear Acceleration", 2);
+        defaultSensors.put("Magnetometer", 5);
+        defaultSensors.put("Rotation", 4);
+        defaultSensors.put("Step Counter", 7);
+        defaultSensors.put("Step Detector", 8);
+
+        permissionSensors = new LinkedHashMap<>();
+        permissionSensors.put("Audio Level", 15);
     }
 
-    boolean sensorsAreSet(Context context) {
-        return getAvailableSensors(context).getBoolean("Set", false);
+    Map<String, ?> getAvailableSensors(Context context) {
+        return context.getSharedPreferences(AVAILABLE_SENSORS, Context.MODE_PRIVATE).getAll();
     }
 
-    SharedPreferences getAvailableSensors(Context context) {
-        return context.getSharedPreferences(AVAILABLE_SENSORS, Context.MODE_PRIVATE);
+    private boolean defaultSensorsAreSet(Context context) {
+        return context.getSharedPreferences(SENSORS_SET, Context.MODE_PRIVATE).getBoolean("Default Sensors Set", false);
     }
 
-    boolean sensorIsAvailable(Context context, String sensor) {
-        return getAvailableSensors(context).getBoolean(sensor, false);
+    private boolean permissionSensorsAreSet(Context context) {
+        return context.getSharedPreferences(SENSORS_SET, Context.MODE_PRIVATE).getBoolean("Permission Sensors Set", false);
     }
 
     void setAvailableSensors(Context context) {
-        if (!sensorsAreSet(context)) {
-            final SharedPreferences.Editor editor = getAvailableSensors(context).edit();
+        if (!defaultSensorsAreSet(context)) {
+            SharedPreferences.Editor editor = context.getSharedPreferences(AVAILABLE_SENSORS, Context.MODE_PRIVATE).edit();
 
-            for (Map.Entry<String, SKSensorModuleType> entry : sensors.entrySet()) {
-                SKSensorModuleType sensor = entry.getValue();
-                try {
-                    SensingKitLibInterface mSensingKitLib = SensingKitLib.getSensingKitLib(context);
-                    mSensingKitLib.registerSensorModule(sensor);
-                    mSensingKitLib.startContinuousSensingWithSensor(sensor);
-                    mSensingKitLib.stopContinuousSensingWithSensor(sensor);
-                    mSensingKitLib.deregisterSensorModule(sensor);
-                    editor.putBoolean(entry.getKey(), true);
-                    Log.d(TAG, entry.getKey() + " Sensor Available");
-                } catch (SKException e) {
-                    editor.putBoolean(entry.getKey(), false);
-                    Log.e(TAG, e.getMessage());
-                }
+            for (Map.Entry<String, Integer> entry : defaultSensors.entrySet()) {
+                SKSensorModuleType sensor = SKSensorModuleType.values()[entry.getValue()];
+                if (checkSensor(context, sensor)) editor.putInt(entry.getKey(), entry.getValue());
             }
-
-            editor.putBoolean("Set", true);
             editor.apply();
-            Log.d(TAG, "Sensors needed setting");
-        } else {
-            Log.d(TAG, "Sensors were set");
+            editor = context.getSharedPreferences(SENSORS_SET, Context.MODE_PRIVATE).edit();
+            editor.putBoolean("Default Sensors Set", true);
+            editor.apply();
+        }
+    }
+
+    void setPermissionSensors(Context context) {
+        if (!permissionSensorsAreSet(context)) {
+            SharedPreferences.Editor editor = context.getSharedPreferences(AVAILABLE_SENSORS, Context.MODE_PRIVATE).edit();
+            for (Map.Entry<String, Integer> entry : permissionSensors.entrySet()) {
+                SKSensorModuleType sensor = SKSensorModuleType.values()[entry.getValue()];
+                if (checkSensor(context, sensor)) editor.putInt(entry.getKey(), entry.getValue());
+            }
+            editor.apply();
+            editor = context.getSharedPreferences(SENSORS_SET, Context.MODE_PRIVATE).edit();
+            editor.putBoolean("Permission Sensors Set", true);
+            editor.apply();
+        }
+    }
+
+    private boolean checkSensor(Context context, SKSensorModuleType sensor) {
+        try {
+            SensingKitLibInterface mSensingKitLib = SensingKitLib.getSensingKitLib(context);
+            mSensingKitLib.registerSensorModule(sensor);
+            mSensingKitLib.startContinuousSensingWithSensor(sensor);
+            mSensingKitLib.stopContinuousSensingWithSensor(sensor);
+            mSensingKitLib.deregisterSensorModule(sensor);
+            return true;
+        } catch (SKException e) {
+            Log.e(TAG, e.getMessage());
+            return false;
         }
     }
 }

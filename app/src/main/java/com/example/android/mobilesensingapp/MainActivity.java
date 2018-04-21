@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUESTS = 1;
     // UI element
     private Switch sensorSwitch;
+    private SharedPreferenceManager preferenceManager;
 
     /**
      * Sets content view for main user activity
@@ -44,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        preferenceManager = new SharedPreferenceManager();
+        preferenceManager.setAvailableSensors(this);
 
         // Check permissions and request if necessary
         boolean hasPermissions = (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
@@ -113,16 +117,18 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        int granted = PackageManager.PERMISSION_GRANTED;
+        int writeStorage = grantResults[0];
+        int recordAudio = grantResults[1];
+
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case PERMISSION_REQUESTS: {
-                if (!(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    Toast.makeText(this, getString(R.string.storage_permission_denied), Toast.LENGTH_LONG).show();
-                } else if (!(grantResults.length > 0 && grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
-                    Toast.makeText(this, getString(R.string.audio_permission_denied), Toast.LENGTH_LONG).show();
+                if (!(grantResults.length > 0 && writeStorage == granted && recordAudio == granted)) {
+                    if (!(writeStorage == granted)) Toast.makeText(this, getString(R.string.storage_permission_denied), Toast.LENGTH_LONG).show();
+                    if (!(recordAudio == granted)) Toast.makeText(this, getString(R.string.audio_permission_denied), Toast.LENGTH_LONG).show();
                 } else {
-                    SharedPreferenceManager preferenceManager = new SharedPreferenceManager();
-                    preferenceManager.setAvailableSensors(this);
+                    preferenceManager.setPermissionSensors(this);
                 }
             }
         }
