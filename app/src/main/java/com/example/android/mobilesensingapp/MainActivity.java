@@ -22,7 +22,6 @@ import android.view.View;
 import android.widget.Switch;
 import android.widget.Toast;
 
-
 /**
  * Controls interactive elements of the application home screen
  */
@@ -44,21 +43,36 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        System.out.println("onCreate()");
         setContentView(R.layout.activity_main);
 
-        preferenceManager = new SharedPreferenceManager();
-        preferenceManager.setAvailableSensors(this);
-
         // Check permissions and request if necessary
-        boolean hasPermissions = (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
-                && (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED);
+        boolean hasWritePermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        boolean hasAudioPermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
 
-        if (!hasPermissions) {
+        if (!(hasWritePermission && hasAudioPermission)) {
             ActivityCompat.requestPermissions(MainActivity.this,
                     new String[]{
                             Manifest.permission.WRITE_EXTERNAL_STORAGE,
                             Manifest.permission.RECORD_AUDIO},
                     PERMISSION_REQUESTS);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        System.out.println("onResume()");
+
+        preferenceManager = new SharedPreferenceManager();
+        preferenceManager.setAvailableSensors(this);
+
+        // Ensures audio level sensor is made available if user changed permission from
+        // OS app info page, rather than in app
+        boolean hasAudioPermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+
+        if(hasAudioPermission) {
+            preferenceManager.setPermissionSensors(this);
         }
 
         // Set toggle switch position and text based on SensorService status
