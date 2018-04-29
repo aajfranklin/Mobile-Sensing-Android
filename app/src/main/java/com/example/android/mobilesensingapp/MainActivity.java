@@ -10,9 +10,12 @@ package com.example.android.mobilesensingapp;
 
 import android.Manifest;
 import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -35,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ToggleButton pauseButton;
 
     private SharedPreferenceManager preferenceManager;
+    private SensorService sService;
+    private boolean bound;
 
     /**
      * Sets content view for main user activity
@@ -45,8 +50,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         System.out.println("onCreate()");
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         // Check permissions and request if necessary
@@ -62,10 +67,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            SensorService.LocalBinder binder = (SensorService.LocalBinder) service;
+            sService = binder.getService();
+            bound = true;
+            System.out.println("onServiceConnected()");
+            if (sService.isSensing()) {
+                startButton.setEnabled(false);
+                stopButton.setEnabled(true);
+                pauseButton.setEnabled(true);
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
+
     @Override
     protected void onResume() {
-        super.onResume();
         System.out.println("onResume()");
+        super.onResume();
 
         preferenceManager = new SharedPreferenceManager();
         preferenceManager.setAvailableSensors(this);
@@ -86,9 +111,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         stopButton.setOnClickListener(this);
         pauseButton.setOnClickListener(this);
 
-        if(sensorServiceIsRunning()) {
-            startButton.setEnabled(false);
-            stopButton.setEnabled(true);
+        Intent intent = new Intent(this, SensorService.class);
+
+        if (sensorServiceIsRunning()) {
+            bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        System.out.println("onStop()");
+        super.onStop();
+
+        if (sensorServiceIsRunning()) {
+            if (bound) {
+                unbindService(connection);
+                bound = false;
+            }
         }
     }
 
@@ -104,13 +143,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent = new Intent(this, SensorService.class);
 
         if (v == stopButton) {
+            unbindService(connection);
+            bound = false;
             stopService(intent);
             startButton.setEnabled(true);
             stopButton.setEnabled(false);
+            pauseButton.setEnabled(false);
         } else if (v == startButton) {
-            startService(intent);
-            startButton.setEnabled(false);
-            stopButton.setEnabled(true);
+            if (sensorServiceIsRunning()) {
+                sService.resumeSensing();
+                startButton.setEnabled(false);
+                stopButton.setEnabled(true);
+                pauseButton.setEnabled(true);
+            } else {
+                startService(intent);
+                bindService(intent, connection, Context.BIND_AUTO_CREATE);
+            }
+        } else if (v == pauseButton) {
+            sService.pauseSensing();
+            startButton.setEnabled(true);
+            stopButton.setEnabled(false);
+            pauseButton.setEnabled(false);
         }
     }
 

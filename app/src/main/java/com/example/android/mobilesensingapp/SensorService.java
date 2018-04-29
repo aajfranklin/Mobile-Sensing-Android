@@ -15,6 +15,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -38,6 +39,18 @@ public class SensorService extends Service {
     private static final String TAG = "SensorService";
     private PowerManager.WakeLock wakeLock;
     private SensorSession sSession;
+    private IBinder binder = new LocalBinder();
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
+    public class LocalBinder extends Binder {
+        public SensorService getService() {
+            return SensorService.this;
+        }
+    }
 
     /**
      * Starts sensor service.
@@ -59,10 +72,10 @@ public class SensorService extends Service {
      * @param intent Intent used to bind service
      * @return null: No interface provided as this service has no clients
      */
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
+//    @Override
+//    public IBinder onBind(Intent intent) {
+//        return null;
+//    }
 
     /**
      * Properly stops sensor service if it is halted prematurely by OS memory management
@@ -216,5 +229,26 @@ public class SensorService extends Service {
 
         sSession = null;
     }
+
+    public void pauseSensing() {
+        try {
+            sSession.stopSession();
+        } catch (SKException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void resumeSensing() {
+        try {
+            sSession.startSession();
+        } catch (SKException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public boolean isSensing() {
+        return sSession.isSensing();
+    }
+
 
 }
