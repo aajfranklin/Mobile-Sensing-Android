@@ -3,6 +3,7 @@
     <color name="colorPrimary">#00796b</color>
     <color name="colorPrimaryDark">#004c40</color>
     <color name="colorAccent">#48a999</color>
+    <color name="colorButtonNormal">#e0e0e0</color>
     <color name="lineTeal">#48a999</color>
     <color name="lineBlue">#0d47a1</color>
     <color name="lineDarkPink">#880e4f</color>

@@ -216,4 +216,5 @@ public class SensorService extends Service {
 
         sSession = null;
     }
+
 }

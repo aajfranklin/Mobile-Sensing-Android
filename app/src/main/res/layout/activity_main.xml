@@ -4,28 +4,57 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.android.mobilesensingapp.MainActivity">
+    tools:context="com.example.android.mobilesensingapp.MainActivity"
+    tools:layout_editor_absoluteY="81dp">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <Switch
-                android:id="@+id/switch1"
-                android:layout_width="170dp"
-                android:layout_height="26dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                android:checked="false"
-                android:onClick="buttonOnClick"
-                android:text="@string/button_inactive"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:checked="false" />
-        </android.support.constraint.ConstraintLayout>
-    </ScrollView>
+    <ToggleButton
+        android:id="@+id/start_button"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="110dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="16dp"
+        android:checked="false"
+        android:contentDescription="@string/start_button"
+        android:drawableTint="@color/common_google_signin_btn_text_dark"
+        android:drawableTop="@drawable/ic_play_arrow_black_24dp"
+        android:padding="18dp"
+        android:textOff=""
+        android:textOn=""
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
+    <ToggleButton
+        android:id="@+id/stop_button"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="110dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="24dp"
+        android:contentDescription="@string/stop_button"
+        android:drawableTop="@drawable/ic_stop_black_24dp"
+        android:drawableTint="@color/common_google_signin_btn_text_dark"
+        android:padding="18dp"
+        android:textOff=""
+        android:textOn=""
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/start_button"
+        android:enabled="false"/>
+
+    <ToggleButton
+        android:id="@+id/pause_button"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="110dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="24dp"
+        android:contentDescription="@string/pause_button"
+        android:drawableTop="@drawable/ic_pause_black_24dp"
+        android:drawableTint="@color/common_google_signin_btn_text_dark"
+        android:padding="18dp"
+        android:textOff=""
+        android:textOn=""
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/stop_button"
+        android:enabled="false"/>
 </android.support.constraint.ConstraintLayout>

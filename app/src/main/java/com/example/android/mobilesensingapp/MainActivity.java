@@ -19,18 +19,21 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Switch;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 /**
  * Controls interactive elements of the application home screen
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     // Constant for use in request for permission to write to storage
     private static final int PERMISSION_REQUESTS = 1;
-    // UI element
-    private Switch sensorSwitch;
+    // UI elements
+    private ToggleButton startButton;
+    private ToggleButton stopButton;
+    private ToggleButton pauseButton;
+
     private SharedPreferenceManager preferenceManager;
 
     /**
@@ -76,11 +79,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Set toggle switch position and text based on SensorService status
-        sensorSwitch = findViewById(R.id.switch1);
+        startButton = findViewById(R.id.start_button);
+        stopButton = findViewById(R.id.stop_button);
+        pauseButton= findViewById(R.id.pause_button);
+        startButton.setOnClickListener(this);
+        stopButton.setOnClickListener(this);
+        pauseButton.setOnClickListener(this);
 
         if(sensorServiceIsRunning()) {
-            sensorSwitch.setChecked(true);
-            sensorSwitch.setText(getString(R.string.button_active));
+            startButton.setEnabled(false);
+            stopButton.setEnabled(true);
         }
     }
 
@@ -90,17 +98,19 @@ public class MainActivity extends AppCompatActivity {
      * Stops sensor service if it is currently active
      * @param v The View clicked
      */
-    public void buttonOnClick(View v) {
+    public void onClick(View v) {
 
         // An Intent is a passive data structure holding a a description of an action to be performed
         Intent intent = new Intent(this, SensorService.class);
 
-        if (sensorServiceIsRunning()) {
+        if (v == stopButton) {
             stopService(intent);
-            sensorSwitch.setText(getString(R.string.button_inactive));
-        } else {
+            startButton.setEnabled(true);
+            stopButton.setEnabled(false);
+        } else if (v == startButton) {
             startService(intent);
-            sensorSwitch.setText(getString(R.string.button_active));
+            startButton.setEnabled(false);
+            stopButton.setEnabled(true);
         }
     }
 

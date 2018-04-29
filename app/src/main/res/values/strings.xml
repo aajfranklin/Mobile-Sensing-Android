@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">MobileSensingApp</string>
-    <string name="button_inactive">Start Sensing</string>
-    <string name="button_active">Stop Sensing</string>
     <string name="channel_id">MSC1</string>
     <string name="channel_name">Mobile Sensing Notification Channel</string>
     <string name="channel_description">Mobile Sensing Active</string>
@@ -9,4 +7,9 @@
     <string name="notification_text">Collecting sensor data...</string>
     <string name="storage_permission_denied">The app was not allowed to write to external storage. The app will not function properly. Please consider granting permission.</string>
     <string name="audio_permission_denied">The app was not allowed to record audio. The audio level sensor will not be available.</string>
+    <string name="start_button">"Start Sensing"</string>
+    <string name="stop_button">"Stop Sensing"</string>
+    <string name="pause_button">"Pause Sensing"</string>
+    <string name="button_active">"Active"</string>
+    <string name="button_inactive">"Inactive"</string>
 </resources>
