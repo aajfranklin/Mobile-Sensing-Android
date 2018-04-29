@@ -8,9 +8,9 @@ The study has three phases: application design, data gathering, and data analysi
 
 **Application Design**
 
-This repository represents the output of the first phase of the study. The master branch comprises the minimum viable product for the purpose of this study, which is now complete.
+This repository represents the output of the first phase of the study. The 'minimum_viable' branch comprises the minimum viable product for the purpose of this study.
 
-The application presents the user with a simple toggle switch to turn on or off mobile sensing. When active, the application reads data from a variety of the phone's mobile sensors and stores them, either to external storage or internally if no external option is available. This is achieved with the [SensingKit-Android](https://github.com/SensingKit/SensingKit-Android) library.
+The minimum application presents the user with a simple toggle switch to turn on or off mobile sensing. When active, the application reads data from a variety of the phone's mobile sensors and stores them, either to external storage or internally if no external option is available. This is achieved with the [SensingKit-Android](https://github.com/SensingKit/SensingKit-Android) library.
 
 The following sensors are supported:
 
@@ -45,7 +45,7 @@ Data analysis will consist of:
 
 **Extended Application**
 
-The developer branch of this repository will be used to implement additional features not required for the study for which the app was originally designed. This will include implementation of additional sensors with compatibility checks, real-time visualisation of sensor data, and user control over which sensors are activated.
+Additional features not required for the study for which the app was originally designed are worked on in the developer branch and added to the master branch when stable. Features include implementation of additional sensors with compatibility checks, the ability to pause and resume a sensing session, real-time visualisation of sensor data, and user control over which sensors are activated.
 
 **Credits**
 
