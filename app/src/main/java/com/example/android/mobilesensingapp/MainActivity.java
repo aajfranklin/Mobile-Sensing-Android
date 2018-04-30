@@ -40,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SharedPreferenceManager preferenceManager;
     private SensorService sService;
     private boolean bound;
+    private enum SensingStateValues {SENSING, PAUSED, STOPPED}
+    private SensingStateValues sensingState;
 
     /**
      * Sets content view for main user activity
@@ -50,7 +52,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        System.out.println("onCreate()");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -67,29 +68,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    ServiceConnection connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            SensorService.LocalBinder binder = (SensorService.LocalBinder) service;
-            sService = binder.getService();
-            bound = true;
-            System.out.println("onServiceConnected()");
-            if (sService.isSensing()) {
-                startButton.setEnabled(false);
-                stopButton.setEnabled(true);
-                pauseButton.setEnabled(true);
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            bound = false;
-        }
-    };
-
     @Override
     protected void onResume() {
-        System.out.println("onResume()");
         super.onResume();
 
         preferenceManager = new SharedPreferenceManager();
@@ -120,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onStop() {
-        System.out.println("onStop()");
         super.onStop();
 
         if (sensorServiceIsRunning()) {
@@ -130,6 +109,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
+
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            SensorService.LocalBinder binder = (SensorService.LocalBinder) service;
+            sService = binder.getService();
+            bound = true;
+            if (sService.isSensing()) {
+                sensingState = SensingStateValues.SENSING;
+                updateButtonStates(sensingState);
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
 
     /**
      * Determines behaviour of toggle switch on click
@@ -142,28 +139,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // An Intent is a passive data structure holding a a description of an action to be performed
         Intent intent = new Intent(this, SensorService.class);
 
-        if (v == stopButton) {
-            unbindService(connection);
-            bound = false;
-            stopService(intent);
-            startButton.setEnabled(true);
-            stopButton.setEnabled(false);
-            pauseButton.setEnabled(false);
-        } else if (v == startButton) {
-            if (sensorServiceIsRunning()) {
-                sService.resumeSensing();
+        switch (v.getId()) {
+            case R.id.stop_button:
+                unbindService(connection);
+                bound = false;
+                stopService(intent);
+                sensingState = SensingStateValues.STOPPED;
+                break;
+            case R.id.pause_button:
+                sService.pauseSensing();
+                sensingState = SensingStateValues.PAUSED;
+                break;
+            case R.id.start_button:
+                if (sensorServiceIsRunning()) {
+                    sService.resumeSensing();
+                } else {
+                    startService(intent);
+                    bindService(intent, connection, Context.BIND_AUTO_CREATE);
+                }
+                sensingState = SensingStateValues.SENSING;
+                break;
+        }
+        updateButtonStates(sensingState);
+    }
+
+    public void updateButtonStates(SensingStateValues state) {
+        switch (state) {
+            case STOPPED:
+                startButton.setEnabled(true);
+                stopButton.setEnabled(false);
+                pauseButton.setEnabled(false);
+                break;
+            case PAUSED:
+                startButton.setEnabled(true);
+                stopButton.setEnabled(false);
+                pauseButton.setEnabled(false);
+                break;
+            case SENSING:
                 startButton.setEnabled(false);
                 stopButton.setEnabled(true);
                 pauseButton.setEnabled(true);
-            } else {
-                startService(intent);
-                bindService(intent, connection, Context.BIND_AUTO_CREATE);
-            }
-        } else if (v == pauseButton) {
-            sService.pauseSensing();
-            startButton.setEnabled(true);
-            stopButton.setEnabled(false);
-            pauseButton.setEnabled(false);
+                break;
         }
     }
 

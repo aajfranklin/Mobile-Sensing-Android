@@ -46,8 +46,8 @@ public class SensorService extends Service {
         return binder;
     }
 
-    public class LocalBinder extends Binder {
-        public SensorService getService() {
+    class LocalBinder extends Binder {
+        SensorService getService() {
             return SensorService.this;
         }
     }
@@ -65,13 +65,13 @@ public class SensorService extends Service {
         return START_STICKY;
     }
 
-    /**
-     * Mandatory implementation of abstract method in Service interface
-     * Returns interface for communication between a client and the service
-     * Returns null as this service has no clients
-     * @param intent Intent used to bind service
-     * @return null: No interface provided as this service has no clients
-     */
+//    /**
+//     * Mandatory implementation of abstract method in Service interface
+//     * Returns interface for communication between a client and the service
+//     * Returns null as this service has no clients
+//     * @param intent Intent used to bind service
+//     * @return null: No interface provided as this service has no clients
+//     */
 //    @Override
 //    public IBinder onBind(Intent intent) {
 //        return null;
