@@ -12,4 +12,5 @@
     <string name="pause_button">"Pause Sensing"</string>
     <string name="button_active">"Active"</string>
     <string name="button_inactive">"Inactive"</string>
+    <string name="action_settings">"Settings"</string>
 </resources>
