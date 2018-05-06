@@ -95,13 +95,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
 
         preferenceManager = new SharedPreferenceManager();
-        preferenceManager.setAvailableSensors(this);
+        preferenceManager.setDefaultSensors(this);
 
         // Ensures audio level sensor is made available if user changed permission from
         // OS app info page, rather than in app

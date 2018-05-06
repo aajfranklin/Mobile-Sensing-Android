@@ -47,12 +47,14 @@ class SensorSession {
         mSensingKitLib = SensingKitLib.getSensingKitLib(context);
 
         SharedPreferenceManager preferenceManager = new SharedPreferenceManager();
-        Map<String, ?> sensorMap = preferenceManager.getAvailableSensors(context);
+        Map<String, ?> compatibleSensors = preferenceManager.getCompatibleSensors(context);
         ArrayList<String> sensorNames = new ArrayList<>();
 
-        for (Map.Entry<String, ?> entry : sensorMap.entrySet()) {
-            sensorTypes.add(SKSensorModuleType.values()[(Integer) entry.getValue()]);
-            sensorNames.add(entry.getKey());
+        for (Map.Entry<String, ?> entry : compatibleSensors.entrySet()) {
+            if (preferenceManager.sensorIsEnabled(context, entry.getKey())) {
+                sensorTypes.add(SKSensorModuleType.values()[(Integer) entry.getValue()]);
+                sensorNames.add(entry.getKey());
+            }
         }
 
         dataWriters = new ArrayList<>();
