@@ -100,7 +100,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onResume();
 
         preferenceManager = new SharedPreferenceManager();
-        preferenceManager.setDefaultSensors(this);
+        // Must provide context as 'getApplicationContext()' rather than 'this' to
+        // prevent rare leaked intent receiver crash. If permissions dialogue box is opened on resume,
+        // battery sensor does not properly unregister its broadcast receiver if context is
+        // provided as 'this'
+        preferenceManager.setDefaultSensors(getApplicationContext());
 
         // Ensures audio level sensor is made available if user changed permission from
         // OS app info page, rather than in app
