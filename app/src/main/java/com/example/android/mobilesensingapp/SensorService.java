@@ -41,12 +41,15 @@ public class SensorService extends Service {
     private SensorSession sSession;
     private IBinder binder = new LocalBinder();
 
+
+    // Binder given to clients (main activity)
     @Override
     public IBinder onBind(Intent intent) {
         return binder;
     }
 
     class LocalBinder extends Binder {
+        // Return this instance of LocalService so clients (main activity) can call public methods
         SensorService getService() {
             return SensorService.this;
         }
@@ -64,18 +67,6 @@ public class SensorService extends Service {
         startSensing();
         return START_STICKY;
     }
-
-//    /**
-//     * Mandatory implementation of abstract method in Service interface
-//     * Returns interface for communication between a client and the service
-//     * Returns null as this service has no clients
-//     * @param intent Intent used to bind service
-//     * @return null: No interface provided as this service has no clients
-//     */
-//    @Override
-//    public IBinder onBind(Intent intent) {
-//        return null;
-//    }
 
     /**
      * Properly stops sensor service if it is halted prematurely by OS memory management
@@ -209,7 +200,7 @@ public class SensorService extends Service {
 
     /**
      * Called on stop, whether by user or when service is stopped by OS memory management
-     * Stops sensor session, releases wake lock, hides notification
+     * Stops and closes sensor session, releases wake lock, hides notification
      */
     public void stopSensing() {
 
@@ -230,6 +221,9 @@ public class SensorService extends Service {
         sSession = null;
     }
 
+    /** Called when user pauses a running session
+     * Stops sensor session without closing, so data is written to the same files on resume
+     */
     public void pauseSensing() {
         try {
             sSession.stopSession();
@@ -238,6 +232,9 @@ public class SensorService extends Service {
         }
     }
 
+    /** Called when user resumes a paused session
+     * Starts sensor session, with data written to the same files
+     */
     public void resumeSensing() {
         try {
             sSession.startSession();
@@ -246,9 +243,12 @@ public class SensorService extends Service {
         }
     }
 
+    /**
+     * Checks status of sensor session
+     * For use in determining button states in main activity class on service connection
+     * @return boolean: true if sensor session is sensing
+     */
     public boolean isSensing() {
         return sSession.isSensing();
     }
-
-
 }

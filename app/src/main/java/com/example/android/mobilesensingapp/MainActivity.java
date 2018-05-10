@@ -48,10 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SensingStateValues sensingState;
 
     /**
-     * Sets content view for main user activity
-     * Sets available sensors
-     * Makes write to storage permission request if necessary
-     * Sets toggle switch position and text on app start/resume
+     * Sets content view for main user activity and identifies the action bar
      * @param savedInstanceState Bundle: activity's previously saved state
      */
     @Override
@@ -60,21 +57,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
-        // Check permissions and request if necessary
-        boolean hasWritePermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-        boolean hasAudioPermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
-
-        if (!(hasWritePermission && hasAudioPermission)) {
-            ActivityCompat.requestPermissions(MainActivity.this,
-                    new String[]{
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.RECORD_AUDIO},
-                    PERMISSION_REQUESTS);
-        }
     }
 
+    /**
+     * Called between onCreate() and onResume()
+     * Populates the action bar menu with buttons defined in res.menu folder
+     * Ensures the settings menu button displays
+     * @param menu The action bar menu, passed in automatically
+     * @return boolean: return true for the menu to be displayed
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -82,6 +73,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return true;
     }
 
+    /**
+     * Starts the settings activity on settings button click
+     * @param item the button clicked
+     * @return boolean: return true to display the selected options menu
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -95,6 +91,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * Sets sensors available on the device, if not already set
+     * Requests write to storage and record audio permissions
+     * Assigns button views to toggle button objects
+     * Binds sensor service to main activity if running
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -106,15 +108,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // provided as 'this'
         preferenceManager.setDefaultSensors(getApplicationContext());
 
-        // Ensures audio level sensor is made available if user changed permission from
-        // OS app info page, rather than in app
+        // Check permissions and request if necessary
+        boolean hasWritePermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
         boolean hasAudioPermission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+
+        if (!(hasWritePermission && hasAudioPermission)) {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.RECORD_AUDIO},
+                    PERMISSION_REQUESTS);
+        }
 
         if(hasAudioPermission) {
             preferenceManager.setPermissionSensors(this);
         }
 
-        // Set toggle switch position and text based on SensorService status
+        // Set button status based on SensorService status
         startButton = findViewById(R.id.start_button);
         stopButton = findViewById(R.id.stop_button);
         pauseButton= findViewById(R.id.pause_button);
@@ -124,11 +134,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Intent intent = new Intent(this, SensorService.class);
 
+        // Bind the service if it is running
+        // Also serves to set button states based on sensor service status on bind
         if (sensorServiceIsRunning()) {
             bindService(intent, connection, Context.BIND_AUTO_CREATE);
         }
     }
 
+    /**
+     * Unbind sensor service on app close
+     */
     @Override
     protected void onStop() {
         super.onStop();
@@ -141,6 +156,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * Interface for monitoring the state of the sensor service
+     * Facilitates access to sensor service methods required for pause button functionality
+     */
     ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -160,14 +179,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
     /**
-     * Determines behaviour of toggle switch on click
-     * Starts sensor service if it is not currently active
-     * Stops sensor service if it is currently active
+     * Determines behaviour of start, stop, play buttons on click
      * @param v The View clicked
      */
     public void onClick(View v) {
 
-        // An Intent is a passive data structure holding a a description of an action to be performed
         Intent intent = new Intent(this, SensorService.class);
 
         switch (v.getId()) {
@@ -194,6 +210,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         updateButtonStates(sensingState);
     }
 
+    /**
+     * Update button state based on the current sensing state
+     * @param state The current sensing state: SENSING, STOPPED, PAUSED
+     */
     public void updateButtonStates(SensingStateValues state) {
         switch (state) {
             case STOPPED:
@@ -233,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * Displays toast to the user noting that app will not request properly if write storage permission is denied
+     * Displays toasts to the user noting reduced app functionality when permission requests are denied
      * Called on receipt of permission request results
      * @param requestCode int: request code passed to the original permission request
      * @param permissions String: the requested permissions
