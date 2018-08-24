@@ -2,7 +2,19 @@
  *  Alex Franklin, aajfranklin@gmail.com
  *
  *  This class is part of a continuous sensing application for Android
- *  For more information, visit https://github.com/aajfranklin/Mobile-Sensing-Android
+ *  For more information and the latest version, visit:
+ *  https://github.com/aajfranklin/Mobile-Sensing-Android
+ *
+ *  This class has been modified from the open source continuous sensing
+ *  application CrowdSense (2017). The original author of CrowdSense is
+ *  Kleomenis Katevas, k.katevas@qmul.ac.uk
+ *
+ *  For the CrowdSense source code, visit:
+ *  https://github.com/SensingKit/CrowdSense-Android
+ *
+ *  Permission to modify CrowdSense is granted under the terms of version
+ *  3 of the GNU Lesser General Public License as published by the Free
+ *  Software Foundation.
  *
  */
 
